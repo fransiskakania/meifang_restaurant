@@ -1,0 +1,155 @@
+/* Tambahkan overlay hijau transparan ketika kartu memiliki kelas .hover-green */
+.hover-green .menu-image {
+    position: relative;
+}
+
+.hover-green .menu-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px; /* Sesuaikan dengan radius gambar */
+    z-index: 1; /* Pastikan overlay berada di atas gambar */
+}
+
+/* hover */
+.card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    
+}
+
+.card-img-top {
+    transition: transform 0.3s ease, filter 0.3s ease;
+    
+}
+
+.portfolio-info {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    text-align: center;
+    
+}
+
+
+.card:hover .portfolio-info {
+    opacity: 1;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.1);
+    filter: brightness(50%);
+}
+
+/* Quantity control button container */
+.quantity-control {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);  
+    display: none;
+    gap: 5px; 
+}
+#quantity {
+    font-size: 14px;  /* Smaller font size for quantity */
+    font-weight: bold;
+}
+button:focus {
+    outline: none;
+}
+/* untuk +- */
+/* Hide quantity control by default */
+.quantity-control {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.card:hover .quantity-control {
+    opacity: 1;
+}
+
+.quantity-control {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    padding: 5px 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.quantity-control button {
+    background-color: #f8f9fa;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.quantity-control button:hover {
+    background-color: #e2e6ea;
+}
+
+.quantity-control span {
+    font-size: 1.2rem;
+    margin: 0 10px;
+    color: #333;
+}
+.hover-green .card-img-top {
+    filter: brightness(70%);
+    transition: filter 0.3s, transform 0.3s;
+}
+
+.hover-green .portfolio-info {
+    background-color: rgba(0, 128, 0, 0.6); /* Warna hijau transparan */
+}
+.text-info h4 {
+    font-size: 10px; /* Ukuran font lebih kecil */
+    margin-bottom: 2px; /* Jarak bawah kecil */
+}
+
+.text-info p {
+    font-size: 12px; /* Ukuran font lebih kecil */
+    margin-top: 0; /* Jarak atas kecil */
+}
+
+.green-border {
+    border: 1px solid !important;
+    box-shadow: 0px 0px 4px 3px #4CBB17	;
+  }
+
+  .order-summary {
+    min-height: 100vh; /* Menjadikan order summary setinggi tampilan layar */
+    height: auto; /* Memungkinkan konten untuk lebih panjang */
+    overflow-y: auto; /* Menambahkan scroll jika konten melebihi ukuran */
+    font-size: 16px; /* Ukuran font yang lebih besar */
+}
+
+.order-summary h4 {
+    font-size: 20px; /* Ukuran judul */
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.order-summary .summary-details {
+    font-size: 16px;
+}
+
+.order-summary .list-group {
+    max-height: 300px; /* Menambahkan scroll pada daftar item */
+    overflow-y: auto;
+}
+
+.order-summary button {
+    font-size: 16px;
+    padding: 12px;
+}
+
+.list-group-item {
+    font-size: 16px; /* Ukuran font untuk item di dalam daftar */
+}
+
+ 

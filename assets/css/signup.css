@@ -1,0 +1,167 @@
+/* Body */
+body {
+    font-family: 'poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 10px 20px;
+    background-color: #f7f7f7; /* Latar belakang lembut */
+}
+
+/* Kontainer */
+.containers {
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animasi pada hover */
+}
+
+.containers:hover {
+    transform: translateY(-10px); /* Naikkan kontainer sedikit */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); /* Tambahkan efek bayangan */
+}
+
+/* Logo */
+.logos {
+    width: 80px;
+    margin: 0 auto 15px;
+    transition: transform 0.3s ease; /* Efek hover logo */
+}
+
+.logos:hover {
+    transform: rotate(10deg) scale(1.1); /* Sedikit rotasi dan perbesar */
+}
+
+/* Heading */
+.signup-form h1 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Paragraf */
+.signup-form p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* Input dan Select */
+.signup-form input,
+.signup-form select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.signup-form input:focus,
+.signup-form select:focus {
+    border-color: #4facfe; /* Ubah warna border */
+    box-shadow: 0 0 5px rgba(79, 172, 254, 0.5); /* Tambahkan efek cahaya */
+    outline: none; /* Hilangkan outline default */
+}
+
+/* Tombol */
+.signup-form button {
+    width: 100%;
+    background: #4facfe;
+    color: white;
+    border: none;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s ease;
+}
+
+.signup-form button:hover {
+    background: #0056b3; /* Warna lebih gelap */
+    transform: scale(1.05); /* Perbesar tombol sedikit */
+}
+
+/* Link */
+.signup-form a {
+    text-decoration: none;
+    color: #4facfe;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.signup-form a:hover {
+    text-decoration: underline;
+    color: #0056b3; /* Warna lebih gelap pada hover */
+}
+
+/* Ikon */
+.signup-form .fas {
+    color: #999;
+    transition: color 0.3s ease;
+}
+
+.signup-form .fas:hover {
+    color: #666; /* Sedikit lebih gelap */
+}
+
+/* Animasi loading tombol saat diklik */
+.signup-form button:active {
+    transform: scale(0.95); /* Kecilkan tombol saat ditekan */
+}
+
+/* Media Query untuk Layar Sedang */
+@media (max-width: 768px) {
+    .containers {
+        padding: 15px;
+        max-width: 90%;
+    }
+
+    .signup-form h1 {
+        font-size: 1.3rem;
+    }
+
+    .signup-form input,
+    .signup-form select {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    .signup-form button {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    .logos {
+        width: 70px;
+    }
+}
+
+/* Media Query untuk Layar Kecil */
+@media (max-width: 480px) {
+    body {
+        margin: 5px;
+    }
+
+    .signup-form h1 {
+        font-size: 1.2rem;
+    }
+
+    .signup-form input,
+    .signup-form select,
+    .signup-form button {
+        font-size: 0.8rem;
+    }
+
+    .logos {
+        width: 60px;
+    }
+}

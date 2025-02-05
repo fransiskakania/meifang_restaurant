@@ -1,0 +1,205 @@
+/* Umum */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+#ftco-navbar {
+    background-color: rgb(255, 255, 255); /* Warna latar belakang navbar */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Menambahkan shadow */
+    transition: top 0.3s; /* Animasi saat navbar disembunyikan */
+}
+
+#ftco-navbar .navbar-brand img {
+    height: 40px; /* Ukuran logo */
+}
+
+#ftco-navbar .navbar-nav .nav-link,
+#ftco-navbar .navbar-nav .nav-link i {
+    color: black !important; /* Warna font dan ikon */
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+
+
+#ftco-navbar .dropdown-menu {
+    background-color: rgb(255, 255, 255); /* Warna dropdown */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Shadow pada dropdown */
+}
+
+#ftco-navbar .dropdown-menu .dropdown-item {
+    color: black !important; /* Warna font dropdown */
+}
+
+/* Tombol Order Now */
+#ftco-navbar .btn-danger {
+    background-color: red;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+#ftco-navbar .btn-danger:hover {
+    background-color: #e63946; /* Warna merah lebih gelap */
+    color: white;
+    box-shadow: 0px 4px 10px rgba(230, 57, 70, 0.5); /* Efek bayangan */
+    text-decoration: none;
+}
+
+/* Efek Hover */
+.navbar-nav .nav-link:hover {
+    color:rgb(250, 41, 41); /* Warna teks saat hover */
+    background-color: rgba(255, 255, 255, 0.2); /* Efek background transparan */
+    border-radius: 5px; /* Sudut tumpul */
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: #ff6b6b; /* Warna latar belakang saat hover */
+    color: white; /* Warna teks saat hover */
+}
+
+.nav-link.position-relative:hover {
+    color:rgb(233, 17, 17); /* Warna ikon keranjang saat hover */
+    transform: scale(1.1); /* Sedikit memperbesar ikon */
+}
+
+.navbar-nav .nav-item .fas.fa-bookmark:hover {
+    color: #ffa502; /* Warna emas pada ikon bookmark saat hover */
+}
+
+/* Menyembunyikan navbar saat scroll ke bawah */
+.navbar.hide {
+    top: -80px; /* Menyesuaikan tinggi navbar */
+}
+.nav-item.active .nav-link {
+    color: red !important; /* Mengubah warna font menjadi merah dengan !important */
+	font-weight: bold; /* Teks tebal */
+}
+/* Styling untuk badge notifikasi */
+
+
+/* Styling untuk tombol "Order Now" */
+.order-btn {
+    margin-left: 10px;
+    font-size: 16px;
+}
+
+/* Responsivitas tambahan */
+@media (max-width: 768px) {
+    .navbar-brand img {
+        height: 30px;
+    }
+
+    .order-btn {
+        font-size: 14px;
+        padding: 5px 12px;
+    }
+
+    .cart-badge {
+        font-size: 20px;
+        padding: 1px 4px;
+		top: 2px; 
+		right: 10px;
+		 font-size: 10px; 
+		 border-radius:10px
+    }
+}
+.nav-link:hover {
+    color: #007bff; /* Warna teks saat hover */
+    text-decoration: underline; /* Menambahkan garis bawah */
+}
+
+/* Hover untuk ikon (cart, bookmark) */
+.nav-link i:hover {
+    color: #ff6347; /* Warna ikon saat hover (contoh: oranye) */
+}
+.quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .quantity-control button {
+        border: 25px ; /* Warna border merah */
+        color: #dc3545; /* Warna teks merah */
+        background-color: transparent;
+        padding: 2px 10px;
+        font-size: 16px;
+        border-radius: 25px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .quantity-control button:hover {
+        background-color: #dc3545; /* Merah saat hover */
+        color: white; /* Teks jadi putih saat hover */
+    }
+
+    .quantity-display {
+        width: 25px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+    }
+	.harga {
+    font-size: 16px;
+    color: #d9534f; /* Warna merah sedikit agar menonjol */
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+h3 {
+    font-size: 20px; /* Ubah ukuran sesuai kebutuhan */
+    font-weight: bold;
+    margin-bottom: 10px; /* Beri sedikit jarak dengan harga */
+}
+.details-text {
+    font-size: 12px;
+    color:rgb(255, 0, 0); /* Warna biru */
+    cursor: pointer; /* Membuat teks terlihat seperti tombol */
+}
+
+
+footer {
+    background: linear-gradient(to right, #b71c1c, #ff1744);
+    color: white;
+}
+footer h5 {
+    color: black;
+}
+footer a {
+    color: white;
+    transition: color 0.3s ease-in-out;
+}
+footer a:hover {
+    color: black;
+}
+.social-icons a {
+    transition: transform 0.3s ease-in-out;
+}
+.social-icons a:hover {
+    transform: scale(1.2);
+}
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 1s ease-in-out forwards;
+}
+.menu-header {
+    display: flex;
+    align-items: center;
+}
+
+.menu-header h3 {
+    margin-right: 10px; /* Adjust space between name and bookmark icon */
+}
+
+.btn-outline-warning {
+    padding: 0; /* Optional: remove padding if you want the icon to appear smaller */
+}
+.ftco-footer h5 {
+    color: white !important;
+}
+.meifang-title {
+    color: white !important;
+}

@@ -1,0 +1,115 @@
+<style> 
+  .payment-container {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 25px; /* Add spacing between payment categories */
+    width: 100%; /* Ensure the container spans full width */
+    padding: 10px; /* Add padding for inner spacing */
+}
+
+.payment-container h5 {
+    margin-bottom: 10px; /* Space below the title */
+    font-size: 18px; /* Slightly larger font for section title */
+    font-weight: bold;
+    color: #333;
+}
+
+.payment-category {
+    border: 2px solid #dee2e6; /* Light border around each section */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Inner padding for spacing */
+    background-color: #f8f9fa; /* Light background for the section */
+    margin-bottom: 20px; /* Jarak antar kategori pembayaran */
+}
+
+
+.payment-category b {
+    margin-top: 0; /* No margin on the top */
+    font-size: 16px; /* Distinctive size for category labels */
+    color: #444;
+    display: block; /* Ensures that the category label stays on its own line */
+}
+
+.payment-option {
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    display: flex; /* Enable horizontal alignment */
+    flex-direction: row; /* Arrange icon and text horizontally */
+    align-items: center; /* Center items vertically */
+    justify-content: flex-start; /* Align content to the left */
+    height: 50px; /* Adjust height for button size */
+    padding: 10px 15px; /* Add padding for spacing */
+    background-color: #f8f9fa; /* Light background for button */
+    width: 100%; /* Full width of container */
+    max-width: 100%; /* Ensure it stretches to fill available space */
+    transition: background-color 0.3s, border-color 0.3s; /* Smooth transitions */
+}
+
+.payment-option img {
+    max-width: 30px; /* Smaller icon size for button */
+    height: auto; /* Maintain aspect ratio */
+    margin-right: 10px; /* Add spacing between icon and text */
+}
+
+.payment-option span {
+    font-size: 14px; /* Set font size for button text */
+    font-weight: 500;
+    color: #333;
+}
+
+.payment-option:hover {
+    border-color: #0d6efd; 
+    background-color: #e9ecef; 
+}
+
+.payment-option.active {
+    border-color: #0d6efd !important; /* Warna border tetap biru */
+    background-color: #dbeafe; /* Warna background tetap biru muda */
+}
+
+
+/* Ensure the payment option buttons fill the full width */
+.payment-category .payment-option {
+    width: 100%; /* Make sure each button fills the container width */
+    margin-bottom: 10px; /* Add spacing between each option */
+}
+
+.notification-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    margin: 0 auto;
+    padding: 15px;
+    background-color: #fff;
+}
+
+.notification-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.bank-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.check-status-btn {
+    margin-top: 15px;
+    background-color: #00bcd4;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.check-status-btn:hover {
+    background-color: #0097a7;
+}
+
+</style>
