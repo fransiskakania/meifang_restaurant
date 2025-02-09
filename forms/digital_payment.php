@@ -833,10 +833,10 @@ $total_digital_payment = $row['total_digital_payment'] ? $row['total_digital_pay
     </div>
     <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
-  <button class="nav-link active" id="saldo-tab" data-bs-toggle="tab" data-bs-target="#saldo-tab-pane" type="button" role="tab" aria-controls="saldo-tab-pane" aria-selected="true">Saldo</button>
+  <button class="nav-link active" id="saldo-tab" data-bs-toggle="tab" data-bs-target="#saldo-tab-pane" type="button" role="tab" aria-controls="saldo-tab-pane" aria-selected="true"> Revenue</button>
 </li>
 <li class="nav-item" role="presentation">
-  <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status-tab-pane" type="button" role="tab" aria-controls="status-tab-pane" aria-selected="false">Status Pembayaran</button>
+  <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status-tab-pane" type="button" role="tab" aria-controls="status-tab-pane" aria-selected="false"> Payment Status</button>
 </li>
 
     </ul>
@@ -900,7 +900,7 @@ $result = $conn->query($sql);
     <thead class="thead-light">
       <tr>
         <th scope="col">#</th> <!-- Number column -->
-        <th scope="col">Tanggal</th>
+        <th scope="col">Date</th>
         <th scope="col">ID Order</th>
         <th scope="col">Total Payment</th>
         <th scope="col">Payment Method</th>
@@ -1031,7 +1031,7 @@ if ($result && $result->num_rows > 0) {
       <button class="btn btn-outline-primary me-2 filter-btn" data-status="all">All</button>
       <button class="btn btn-outline-primary me-2 filter-btn" data-status="success">Success</button>
       <button class="btn btn-outline-primary me-2 filter-btn" data-status="pending">Pending</button>
-      <button class="btn btn-outline-primary filter-btn" data-status="failed">Canceled</button>
+      <button class="btn btn-outline-primary  me-2 filter-btn" data-status="canceled">Canceled</button>
     </div>
 
     <!-- Status Pembayaran Cards -->

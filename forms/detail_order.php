@@ -835,11 +835,11 @@ if (isset($_GET['status'])) {
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Id Masakan</th>
-                                    <th>Nama Masakan</th>
+                                    <th>Id Menu</th>
+                                    <th>Menu Name</th>
                                     <th>Stock Menu</th> <!-- Tambahkan kolom Stock Menu -->
-                                    <th>Jumlah</th>
-                                    <th>Harga</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -868,8 +868,11 @@ if (isset($_GET['status'])) {
                                         </td>
                                         <td class="item-total">Rp <?= number_format($total_harga, 3, ',', '.') ?></td>
                                         <td>
-                                            <button class="btn btn-danger" onclick="deleteOrderItem(<?= $row['id_order'] ?>)">Delete</button>
-                                        </td>
+    <button class="btn btn-danger btn-sm" onclick="deleteOrderItem(<?= $row['id_order'] ?>)">
+        <i class="fas fa-trash"></i>
+    </button>
+</td>
+
                                     </tr>
                                 <?php } ?>
                             </tbody>

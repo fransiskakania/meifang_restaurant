@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssisiissis", $new_id_order, $tanggal, $id_masakan, $nama_masakan, $quantity, $price, $user_role, $name, $no_meja, $type_order);
+            $stmt->bind_param("ssisdsssss", $new_id_order, $tanggal, $id_masakan, $nama_masakan, $quantity, $price, $user_role, $name, $no_meja, $type_order);
         
             if (!$stmt->execute()) {
                 echo "Error: " . $stmt->error;

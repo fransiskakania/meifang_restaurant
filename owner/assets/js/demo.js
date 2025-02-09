@@ -192,8 +192,8 @@ Circles.create({
 //Notify
 $.notify({
 	icon: 'icon-bell',
-	title: 'Welcome Owner To Meifang Resto Admin',
-	message: 'Kelola Menu, Pesanan, dan Laporan dengan Mudah',
+	title: 'Welcome Owner To Meifang Resto',
+	message: 'Manage Menu, Orders, and Reports Easily',
 },{
 	type: 'secondary',
 	placement: {

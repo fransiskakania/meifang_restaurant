@@ -881,57 +881,56 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                   <div class="card-body">
                       <!-- Responsive Table -->
                       <div class="table-responsive">
-                          <table class="table table-bordered" id="menuTable">
-                              <thead>
-                                  <tr>
-                                      <th scope="col">#</th>
-                                      <th scope="col">ID Masakan</th> <!-- Tambahan -->
-                                      <th scope="col">Gambar</th>
-                                      <th scope="col">Menu</th>
-                                      <th scope="col">Harga</th>
-                                      <th scope="col">Status</th>
-                                      <th scope="col">Stock</th>
-                                      <th>Category</th>
-                                      <th scope="col">Note</th>
-                                      <th scope="col">Actions</th>
-                                  </tr>
-                              </thead>
-                              <tbody>
-                              <?php
-                              $index = 1;
-                              while ($row = mysqli_fetch_assoc($maincourses)) {
-                                  echo "<tr>";
-                                  echo "<td>" . $index++ . "</td>";
-                                  echo "<td>" . $row['id_masakan'] . "</td>"; // Tambahan
-                                  echo "<td><img src='uploads/" . $row['image'] . "' width='50'></td>";
-                                  echo "<td>" . $row['nama_masakan'] . "</td>";
-                                  echo "<td>" . $row['harga'] . "</td>";
-                                  echo "<td>" . $row['status_masakan'] . "</td>";
-                                  echo "<td>" . $row['stock_menu'] . "</td>";
-                                  echo "<td>" . $row['category'] . "</td>";
-                                  echo "<td>" . $row['note'] . "</td>";
-                                  echo "<td>";
-                                  echo "<div class='btn-group' role='group'>
-                                  <button type='button' class='btn btn-sm btn-warning' style='margin-right: 3px;' data-toggle='modal' data-target='#updateMenuModal' 
-                                      onclick=\"fillUpdateForm('" . $row['id_masakan'] . "','" . $row['image'] . "', '" . $row['nama_masakan'] . "', '" . $row['harga'] . "', '" . $row['status_masakan'] . "', '" . $row['category'] . "', '" . $row['stock_menu'] . "',  '" . $row['note'] . "')\">
-                                      <i class='fas fa-pen'></i>
-                                  </button>
-                                  <button type='button' class='btn btn-sm btn-danger' style='margin-left: 2px;' onclick=\"deleteMenu('" . $row['id_masakan'] . "')\">
-                                      <i class='fas fa-times'></i>
-                                  </button>
-                                  <button type='button' class='btn btn-sm btn-info' style='margin-left: 4px;' data-toggle='modal' data-target='#viewMenuModal' 
-                                      onclick=\"viewMenuDetails('" . $row['id_masakan'] . "','" . $row['image'] . "', '" . $row['nama_masakan'] . "', '" . $row['harga'] . "', '" . $row['status_masakan'] . "', '" . $row['category'] . "', '" . $row['stock_menu'] . "',  '" . $row['note'] . "')\">
-                                      <i class='fas fa-eye'></i>
-                                  </button>
-                              </div>";
-                              
-                                  echo "</td>";
-                                  echo "</tr>";
-                              }
-                              ?>
-                              </tbody>
-                          </table>
-                      </div>
+                        <table class="table table-bordered" id="menuTable">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                <th scope="col">Image</th>
+                                    <th scope="col">Menu</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Stock</th>
+                                    <th scope="col">Category</th>
+                                    <th scope="col">Note</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+                            $index = 1;
+                            while ($row = mysqli_fetch_assoc($maincourses)) {
+                                echo "<tr>";
+                                echo "<td>" . $index++ . "</td>";
+                                echo "<td><img src='uploads/" . $row['image'] . "' width='50'></td>";
+                                echo "<td>" . $row['nama_masakan'] . "</td>";
+                                echo "<td>" . $row['harga'] . "</td>";
+                                echo "<td>" . $row['status_masakan'] . "</td>";
+                                echo "<td>" . $row['stock_menu'] . "</td>";
+                                echo "<td>" . $row['category'] . "</td>";
+                                echo "<td>" . $row['note'] . "</td>";
+
+                                echo "<td>";
+                                echo "<div class='btn-group' role='group'>
+                                    <button type='button' class='btn btn-sm btn-warning' style='margin-right: 3px;' data-toggle='modal' data-target='#updateMenuModal' 
+                                        onclick=\"fillUpdateForm('" . $row['image'] . "', '" . $row['nama_masakan'] . "', '" . $row['harga'] . "', '" . $row['status_masakan'] . "', '" . $row['category'] . "', '" . $row['stock_menu'] . "')\">
+                                        <i class='fas fa-pen'></i>
+                                    </button>
+                                    <button type='button' class='btn btn-sm btn-danger' style='margin-left: 2px;' onclick=\"deleteMenu('" . $row['id_masakan'] . "')\">
+                                        <i class='fas fa-times'></i>
+                                    </button>
+                                    <button type='button' class='btn btn-sm btn-info' style='margin-left: 4px;' data-toggle='modal' data-target='#viewMenuModal' 
+                                        onclick=\"viewMenuDetails('" . $row['image'] . "', '" . $row['nama_masakan'] . "', '" . $row['harga'] . "', '" . $row['status_masakan'] . "', '" . $row['category'] . "', '" . $row['stock_menu'] . "')\">
+                                        <i class='fas fa-eye'></i>
+                                    </button>
+                                </div>";
+                                echo "</td>";
+                                echo "</tr>";
+                            }
+                            ?>
+                            </tbody>
+                        </table>
+                    </div>
+
                       <!-- End of Responsive Table -->
                   </div>
               </div>
@@ -961,14 +960,13 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">ID Masakan</th> <!-- Tambahan -->
-                                <th scope="col">Gambar</th>
+                                <th scope="col">Image</th>
                                 <th scope="col">Menu</th>
-                                <th scope="col">Harga</th>
+                                <th scope="col">Price</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Stock</th>
                                 <th>Category</th>
-                                <th scope="col">Note</th>
+                                <th>Note</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
@@ -978,7 +976,6 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         while ($row = mysqli_fetch_assoc($snacks)) {
                             echo "<tr>";
                             echo "<td>" . $index++ . "</td>";
-                            echo "<td>" . $row['id_masakan'] . "</td>"; // Tambahan
                             echo "<td><img src='uploads/" . $row['image'] . "' width='50'></td>";
                             echo "<td>" . $row['nama_masakan'] . "</td>";
                             echo "<td>" . $row['harga'] . "</td>";
@@ -986,6 +983,7 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                             echo "<td>" . $row['stock_menu'] . "</td>";
                             echo "<td>" . $row['category'] . "</td>";
                             echo "<td>" . $row['note'] . "</td>";
+
                             echo "<td>";
                            echo "<div class='btn-group' role='group'>
                                   <button type='button' class='btn btn-sm btn-warning' style='margin-right: 3px;' data-toggle='modal' data-target='#updateMenuModal' 
@@ -1037,9 +1035,8 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">ID Masakan</th> <!-- Tambahan -->
-                                <th scope="col">Gambar</th>
-                                <th scope="col">Menu</th>
+                                <th scope="col">Image</th>
+                                <th scope="col">Price</th>
                                 <th scope="col">Harga</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Stock</th>
@@ -1054,7 +1051,6 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         while ($row = mysqli_fetch_assoc($dessert)) {
                             echo "<tr>";
                             echo "<td>" . $index++ . "</td>";
-                            echo "<td>" . $row['id_masakan'] . "</td>"; // Tambahan
                             echo "<td><img src='uploads/" . $row['image'] . "' width='50'></td>";
                             echo "<td>" . $row['nama_masakan'] . "</td>";
                             echo "<td>" . $row['harga'] . "</td>";
@@ -1113,10 +1109,9 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">ID Masakan</th> <!-- Tambahan -->
-                                <th scope="col">Gambar</th>
+                                <th scope="col">Image</th>
                                 <th scope="col">Menu</th>
-                                <th scope="col">Harga</th>
+                                <th scope="col">Price</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Stock</th>
                                 <th>Category</th>
@@ -1130,7 +1125,6 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         while ($row = mysqli_fetch_assoc($softdrinks)) {
                             echo "<tr>";
                             echo "<td>" . $index++ . "</td>";
-                            echo "<td>" . $row['id_masakan'] . "</td>"; // Tambahan
                             echo "<td><img src='uploads/" . $row['image'] . "' width='50'></td>";
                             echo "<td>" . $row['nama_masakan'] . "</td>";
                             echo "<td>" . $row['harga'] . "</td>";
@@ -1188,10 +1182,9 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">ID Masakan</th> <!-- Tambahan -->
-                                <th scope="col">Gambar</th>
+                                <th scope="col">Image</th>
                                 <th scope="col">Menu</th>
-                                <th scope="col">Harga</th>
+                                <th scope="col">Price</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Stock</th>
                                 <th>Category</th>
@@ -1205,7 +1198,6 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         while ($row = mysqli_fetch_assoc($coffentea)) {
                             echo "<tr>";
                             echo "<td>" . $index++ . "</td>";
-                            echo "<td>" . $row['id_masakan'] . "</td>"; // Tambahan
                             echo "<td><img src='uploads/" . $row['image'] . "' width='50'></td>";
                             echo "<td>" . $row['nama_masakan'] . "</td>";
                             echo "<td>" . $row['harga'] . "</td>";
@@ -1263,10 +1255,9 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">ID Masakan</th> <!-- Tambahan -->
-                                <th scope="col">Gambar</th>
+                                <th scope="col">Image</th>
                                 <th scope="col">Menu</th>
-                                <th scope="col">Harga</th>
+                                <th scope="col">Price</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Stock</th>
                                 <th>Category</th>
@@ -1280,7 +1271,6 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                         while ($row = mysqli_fetch_assoc($milks)) {
                             echo "<tr>";
                             echo "<td>" . $index++ . "</td>";
-                            echo "<td>" . $row['id_masakan'] . "</td>"; // Tambahan
                             echo "<td><img src='uploads/" . $row['image'] . "' width='50'></td>";
                             echo "<td>" . $row['nama_masakan'] . "</td>";
                             echo "<td>" . $row['harga'] . "</td>";

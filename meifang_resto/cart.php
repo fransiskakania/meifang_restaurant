@@ -30,7 +30,7 @@ if ($id_user) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Cart - Meifang Restaurant authentic Chinese dishes</title>
+	<title>Meifang Resto - Cart</title>
     <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
    
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -118,7 +118,7 @@ if ($id_user) {
                                     <div class="mb-3">
                                         <label for="user_role" class="form-label">User Role</label>
                                         <input type="text" class="form-control" id="user_role" name="user_role" value="<?php echo htmlspecialchars($nama_lengkap); ?>" readonly>
-                                    </div>
+                                        </div>
                                     <div class="mb-3">
                                         <label for="name" class="form-label">Name</label>
                                         <input type="text" class="form-control" id="name" name="name" required>
@@ -173,7 +173,7 @@ function loadCart() {
     }
 
     cart.forEach((item, index) => {
-        let itemTotal = item.harga * item.qty;
+        let itemTotal = item.harga * item.qty.toFixed(3);
         totalItems += item.qty;
         totalPrice += itemTotal;
 
@@ -202,7 +202,11 @@ function loadCart() {
     document.getElementById("total-cost").innerText = "Rp " + totalPrice.toLocaleString("id-ID");
 
     // Simpan data keranjang ke dalam form sebelum submit
-    document.getElementById("cart_data").value = JSON.stringify(cart);
+    document.getElementById("cart_data").value = JSON.stringify(cart.map(item => ({
+    ...item,
+    harga: parseFloat(item.harga).toFixed(2) // Pastikan harga tetap memiliki dua desimal
+})));
+
 }
 
 

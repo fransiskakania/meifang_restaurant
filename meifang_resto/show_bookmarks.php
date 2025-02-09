@@ -176,27 +176,57 @@ $connection->close();
 </div>
 
 
-    <script>
-       function removeBookmark(id) {
-    if (confirm("Apakah Anda yakin ingin menghapus bookmark ini?")) {
-        fetch("delete_bookmark.php", { // Mengubah endpoint ke delete_bookmark.php
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "id_masakan=" + id
-        })
-        .then(response => response.text())
-        .then(result => {
-            if (result === "removed") {
-                document.getElementById("bookmark_" + id).remove();
-            } else {
-                alert("Gagal menghapus bookmark.");
-            }
-        })
-        .catch(error => console.error("Error:", error));
-    }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function removeBookmark(id) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This bookmark will be deleted!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("delete_bookmark.php", { // Delete bookmark endpoint
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "id_masakan=" + id
+            })
+            .then(response => response.text())
+            .then(result => {
+                if (result === "removed") {
+                    document.getElementById("bookmark_" + id).remove();
+                    Swal.fire({
+                        title: "Deleted!",
+                        text: "The bookmark has been removed.",
+                        icon: "success",
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Failed!",
+                        text: "Failed to delete the bookmark.",
+                        icon: "error"
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    title: "Error!",
+                    text: "An error occurred, please try again.",
+                    icon: "error"
+                });
+                console.error("Error:", error);
+            });
+        }
+    });
 }
+</script>
 
-    </script>
    <script>
     function loadCartDropdown() {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];

@@ -1,18 +1,4 @@
 <?php
-// Start the session to retrieve totalPayment if using session
-session_start();
-
-// Initialize $totalPayment variable
-$totalPayment = 0;
-
-// Retrieve totalPayment from session or GET parameter
-if (isset($_SESSION['totalPayment'])) {
-    $totalPayment = $_SESSION['totalPayment'];
-} elseif (isset($_GET['totalPayment'])) { // Alternatively, using GET parameter
-    $totalPayment = (float) $_GET['totalPayment'];
-}
-
-// Database connection (assumed connection variable $conn is already established)
 include 'koneksi.php';
 
 // Dapatkan waktu sekarang dan atur zona waktu
@@ -25,88 +11,28 @@ $deadline->modify('+15 minutes'); // Memajukan deadline 15 menit
 // Format bagian tanggal dan waktu untuk $dayDate dan $yearTime
 $dayDate = $deadline->format('l, d F'); // Format hari, tanggal, dan bulan
 $yearTime = $deadline->format('Y, H:i'); // Format tahun dan waktu
-
-$id_order = isset($_GET['id_order']) ? htmlspecialchars($_GET['id_order']) : 'ID Order tidak ditemukan';
-
-// Fetch payment method from the database based on id_order
-$query = "SELECT payment_with FROM transaksi WHERE id_order = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id_order);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    // Assuming there's only one transaction with the provided id_order
-    $row = $result->fetch_assoc();
-    $payment_with = $row['payment_with'];
-
-    // Simpan deadline ke database
-    $update_query = "UPDATE transaksi SET deadline = ? WHERE id_order = ?";
-    $update_stmt = $conn->prepare($update_query);
-    $deadlineFormatted = $deadline->format('Y-m-d H:i:s'); // Format deadline untuk database
-    $update_stmt->bind_param("si", $deadlineFormatted, $id_order);
-
-    if ($update_stmt->execute()) {
-        echo "Deadline berhasil disimpan.";
-    } else {
-        echo "Gagal menyimpan deadline: " . $conn->error;
-    }
+if (isset($_GET['id_order']) && isset($_GET['total_payment'])) {
+    $id_order = $_GET['id_order'];
+    $total_payment = $_GET['total_payment'];
 } else {
-    $payment_with = 'Payment method not found';
-    echo "ID Order tidak ditemukan.";
-}
-
-if ($id_order) {
-    // Ambil deadline dari tabel transaksi
-    $query = "SELECT deadline, status_order FROM transaksi WHERE id_order = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $id_order);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $deadline = new DateTime($row['deadline']);
-        $currentTime = new DateTime();
-
-        // Periksa apakah pembayaran melewati deadline
-        if ($currentTime > $deadline && $row['status_order'] != 'canceled') {
-            // Update status_order menjadi 'canceled'
-            $update_query = "UPDATE transaksi SET status_order = 'canceled' WHERE id_order = ?";
-            $update_stmt = $conn->prepare($update_query);
-            $update_stmt->bind_param("i", $id_order);
-
-            if ($update_stmt->execute()) {
-                echo "Status order telah diubah menjadi 'canceled'.";
-            } else {
-                echo "Gagal mengubah status order: " . $conn->error;
-            }
-        } else {
-            echo "Pembayaran masih dalam batas waktu";
-        }
-    } else {
-        echo "ID Order tidak ditemukan.";
-    }
-} else {
-    echo "ID Order tidak diberikan.";
+    echo "<script>alert('Data pembayaran tidak valid.'); window.location.href='index.php';</script>";
+    exit;
 }
 ?>
 
-
-
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tagihan Pembayaran</title>
+    <title>Meifang Restaurant - Payment Noncash</title>
+    <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
 
     <style>
          body {
@@ -196,7 +122,7 @@ if ($id_order) {
 </head>
 <body class="bg-light">
 <div class="container mt-5">
-    <h2 class="fw-bold mb-10 text-center">Tagihan Pembayaran</h2>
+    <h2 class="fw-bold mb-10 text-center">Payment Invoice</h2>
     <div class="va-container shadow">
         <div class="deadline">
             <b>Payment Deadline</b>
@@ -208,7 +134,9 @@ if ($id_order) {
 
         <div class="card mt-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <?php
+            <?php
+                $payment_with = isset($_GET['payment_with']) ? $_GET['payment_with'] : '';
+
                     // Determine the payment method name and logo based on payment_with
                     switch (strtolower($payment_with)) {
                         case 'bca':
@@ -241,9 +169,10 @@ if ($id_order) {
                             break;
                     }
                 ?>
+
             </div>  
             <div class="card-body">
-                <p class="mb-1">Nomor Virtual Account</p>
+                <p class="mb-1">No Virtual Account </p>
                 <h5 class="bold">
                     <strong id="orderID"><?php echo $id_order; ?></strong>
                     <a href="#" class="copy-icon" onclick="copyText('orderID')">
@@ -254,7 +183,7 @@ if ($id_order) {
                 <p class="mb-1 mt-3">Total Tagihan</p>
                 <h4 class="bold d-flex align-items-center justify-content-between">
                     <span class="total-payment">
-                        <strong id="totalPayment">Rp <?php echo number_format($totalPayment, 3, ',', '.'); ?></strong>
+                        <strong id="totalPayment">Rp <?php echo number_format($total_payment, 3, ',', '.'); ?></strong>
                         <a href="#" class="copy-icon" onclick="copyText('totalPayment')">
                             <i class="far fa-copy"></i>
                             <span class="tooltip">Salin</span>
@@ -266,7 +195,7 @@ if ($id_order) {
         </div>
 
         <div class="d-grid mt-3">
-            <button class="btn btn-primary px-4" onclick="window.location.href='digital_payment.php'"><b>Payment</b></button>
+            <button class="btn btn-primary px-4" onclick="window.location.href='index.php#menu'"><b>Back</b></button>
         </div>
     </div>
 </div>

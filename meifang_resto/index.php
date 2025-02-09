@@ -74,7 +74,15 @@ if ($id_user) {
     <!-- Tambahkan SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="./css/footer.css">
-
+    <style>
+    #sakuraCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+</style>
 </head>
 <body>
 
@@ -272,44 +280,67 @@ if ($id_user) {
 						</div>
 
 				
-						<?php 
-				$connection = new mysqli("localhost", "root", "", "apk_kasir");
+                        <?php 
+                // Create connection to the database
+                $connection = new mysqli("localhost", "root", "", "apk_kasir");
 
-				// Periksa koneksi
-				if ($connection->connect_error) {
-					die("Koneksi gagal: " . $connection->connect_error);
-				}
+                // Check the connection
+                if ($connection->connect_error) {
+                    die("Connection failed: " . $connection->connect_error);
+                }
 
-				$query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'snack'";
-				$result = $connection->query($query);
-				if ($result->num_rows > 0): ?>
-					<?php while ($row = $result->fetch_assoc()): ?>
-						<div class="menus d-flex ftco-animate">
-							<div class="menu-img img" style="background-image: url('image/snack/<?= $row['image'] ?>');"></div>
-							<div class="text">
-								<h3><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-								<p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
-								<p class="stock_menu" style="display: none;">
-									Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
-								</p>
-								<!-- Section Increase & Decrease -->
-								<div class="quantity-control">
-									<button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
-									<span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
-									<button 
-										class="btn btn-sm btn-outline-secondary" 
-										onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
-										+
-									</button>
-									<a href="details_menu_snack.php?id=<?= $row['id_masakan'] ?>" class="details-text ml-3">Details</a>
-								</div>
-							</div>
-						</div>
-					<?php endwhile; ?>
-				<?php else: ?>
-					<p>Tidak ada menu tersedia.</p>
-				<?php endif; ?>
-				<?php $connection->close(); ?>
+                // Query to select the menu data for 'main_course' category
+                $query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'snack'";
+                $result = $connection->query($query);
+
+                // If there are results, display them
+                if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <div class="menus d-flex ftco-animate">
+                            <!-- Menu Image -->
+                            <div class="menu-img img" style="background-image: url('image/snack/<?= $row['image'] ?>');"></div>
+                            
+                            <!-- Menu Text Section -->
+                            <div class="text">
+                                <!-- Menu Header (Name and Bookmark Icon) -->
+                                <div class="menu-header d-flex justify-content-between align-items-center mb-2">
+                                    <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    </div>
+
+                                <!-- Price Display -->
+                                <p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
+
+                                <!-- Stock Information (Hidden by default) -->
+                                <p class="stock_menu" style="display: none;">
+                                    Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
+                                </p>
+
+                                <!-- Quantity Control (Increase/Decrease) -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="quantity-control">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
+                                        <span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
+                                        <button 
+                                            class="btn btn-sm btn-outline-secondary" 
+                                            onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
+                                            +
+                                        </button>
+                                    </div>
+                                    <!-- Link to the details page -->
+                                    <a href="details_menu_snack.php?id=<?= $row['id_masakan'] ?>" class="details-text" style="margin-left: auto;">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>Tidak ada menu tersedia.</p>
+                <?php endif; ?>
+
+                <?php 
+                // Close the database connection
+                $connection->close(); 
+                ?>
 					
 						<span class="flat flaticon-bread" style="left: 0;"></span>
 						<span class="flat flaticon-breakfast" style="right: 0;"></span>
@@ -322,43 +353,62 @@ if ($id_user) {
 							<h3>Dessert</h3>
 						</div>
 
-						<?php 
-				$connection = new mysqli("localhost", "root", "", "apk_kasir");
+                        <?php 
+                // Create connection to the database
+                $connection = new mysqli("localhost", "root", "", "apk_kasir");
 
-				// Periksa koneksi
-				if ($connection->connect_error) {
-					die("Koneksi gagal: " . $connection->connect_error);
-				}
+                // Check the connection
+                if ($connection->connect_error) {
+                    die("Connection failed: " . $connection->connect_error);
+                }
 
-				$query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'dessert'";
-				$result = $connection->query($query);
-				if ($result->num_rows > 0): ?>
-					<?php while ($row = $result->fetch_assoc()): ?>
-						<div class="menus d-flex ftco-animate">
-							<div class="menu-img img" style="background-image: url('image/dessert/<?= $row['image'] ?>');"></div>
-							<div class="text">
-								<h3><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-								<p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
-								<p class="stock_menu" style="display: none;">
-									Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
-								</p>
-								<!-- Section Increase & Decrease -->
-								<div class="quantity-control">
-									<button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
-									<span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
-									<button 
-										class="btn btn-sm btn-outline-secondary" 
-										onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
-										+
-									</button>
-									<a href="details_menu_dessert.php?id=<?= $row['id_masakan'] ?>" class="details-text ml-3">Details</a>
-								</div>
-							</div>
-						</div>
-					<?php endwhile; ?>
-				<?php else: ?>
-					<p>Tidak ada menu tersedia.</p>
-				<?php endif; ?>
+                // Query to select the menu data for 'main_course' category
+                $query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'dessert'";
+                $result = $connection->query($query);
+
+                // If there are results, display them
+                if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <div class="menus d-flex ftco-animate">
+                            <!-- Menu Image -->
+                            <div class="menu-img img" style="background-image: url('image/dessert/<?= $row['image'] ?>');"></div>
+                            
+                            <!-- Menu Text Section -->
+                            <div class="text">
+                                <!-- Menu Header (Name and Bookmark Icon) -->
+                                <div class="menu-header d-flex justify-content-between align-items-center mb-2">
+                                    <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    </div>
+
+                                <!-- Price Display -->
+                                <p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
+
+                                <!-- Stock Information (Hidden by default) -->
+                                <p class="stock_menu" style="display: none;">
+                                    Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
+                                </p>
+
+                                <!-- Quantity Control (Increase/Decrease) -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="quantity-control">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
+                                        <span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
+                                        <button 
+                                            class="btn btn-sm btn-outline-secondary" 
+                                            onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
+                                            +
+                                        </button>
+                                    </div>
+                                    <!-- Link to the details page -->
+                                    <a href="details_menu_dessert.php?id=<?= $row['id_masakan'] ?>" class="details-text" style="margin-left: auto;">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>Tidak ada menu tersedia.</p>
+                <?php endif; ?>
 				<?php $connection->close(); ?>
 					
 						<span class="flat flaticon-bread" style="left: 0;"></span>
@@ -372,43 +422,62 @@ if ($id_user) {
 							<h3>Non Coffe</h3>
 						</div>
 
-						<?php 
-				$connection = new mysqli("localhost", "root", "", "apk_kasir");
+                        <?php 
+                // Create connection to the database
+                $connection = new mysqli("localhost", "root", "", "apk_kasir");
 
-				// Periksa koneksi
-				if ($connection->connect_error) {
-					die("Koneksi gagal: " . $connection->connect_error);
-				}
+                // Check the connection
+                if ($connection->connect_error) {
+                    die("Connection failed: " . $connection->connect_error);
+                }
 
-				$query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'drink'";
-				$result = $connection->query($query);
-				if ($result->num_rows > 0): ?>
-					<?php while ($row = $result->fetch_assoc()): ?>
-						<div class="menus d-flex ftco-animate">
-							<div class="menu-img img" style="background-image: url('image/drinks/<?= $row['image'] ?>');"></div>
-							<div class="text">
-								<h3><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-								<p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
-								<p class="stock_menu" style="display: none;">
-									Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
-								</p>
-								<!-- Section Increase & Decrease -->
-								<div class="quantity-control">
-									<button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
-									<span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
-									<button 
-										class="btn btn-sm btn-outline-secondary" 
-										onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
-										+
-									</button>
-									<a href="details_menu_drink.php?id=<?= $row['id_masakan'] ?>" class="details-text ml-3">Details</a>
-								</div>
-							</div>
-						</div>
-					<?php endwhile; ?>
-				<?php else: ?>
-					<p>Tidak ada menu tersedia.</p>
-				<?php endif; ?>
+                // Query to select the menu data for 'main_course' category
+                $query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'drink'";
+                $result = $connection->query($query);
+
+                // If there are results, display them
+                if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <div class="menus d-flex ftco-animate">
+                            <!-- Menu Image -->
+                            <div class="menu-img img" style="background-image: url('image/drinks/<?= $row['image'] ?>');"></div>
+                            
+                            <!-- Menu Text Section -->
+                            <div class="text">
+                                <!-- Menu Header (Name and Bookmark Icon) -->
+                                <div class="menu-header d-flex justify-content-between align-items-center mb-2">
+                                    <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    </div>
+
+                                <!-- Price Display -->
+                                <p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
+
+                                <!-- Stock Information (Hidden by default) -->
+                                <p class="stock_menu" style="display: none;">
+                                    Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
+                                </p>
+
+                                <!-- Quantity Control (Increase/Decrease) -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="quantity-control">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
+                                        <span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
+                                        <button 
+                                            class="btn btn-sm btn-outline-secondary" 
+                                            onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
+                                            +
+                                        </button>
+                                    </div>
+                                    <!-- Link to the details page -->
+                                    <a href="details_menu_drink.php?id=<?= $row['id_masakan'] ?>" class="details-text" style="margin-left: auto;">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>Tidak ada menu tersedia.</p>
+                <?php endif; ?>
 				<?php $connection->close(); ?>
 					
 						<span class="flat flaticon-bread" style="left: 0;"></span>
@@ -422,43 +491,62 @@ if ($id_user) {
 							<h3>Coffe & Tea</h3>
 						</div>
 
-						<?php 
-				$connection = new mysqli("localhost", "root", "", "apk_kasir");
+                        <?php 
+                // Create connection to the database
+                $connection = new mysqli("localhost", "root", "", "apk_kasir");
 
-				// Periksa koneksi
-				if ($connection->connect_error) {
-					die("Koneksi gagal: " . $connection->connect_error);
-				}
+                // Check the connection
+                if ($connection->connect_error) {
+                    die("Connection failed: " . $connection->connect_error);
+                }
 
-				$query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'coffentea'";
-				$result = $connection->query($query);
-				if ($result->num_rows > 0): ?>
-					<?php while ($row = $result->fetch_assoc()): ?>
-						<div class="menus d-flex ftco-animate">
-							<div class="menu-img img" style="background-image: url('image/coffentea/<?= $row['image'] ?>');"></div>
-							<div class="text">
-								<h3><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-								<p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
-								<p class="stock_menu" style="display: none;">
-									Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
-								</p>
-								<!-- Section Increase & Decrease -->
-								<div class="quantity-control">
-									<button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
-									<span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
-									<button 
-										class="btn btn-sm btn-outline-secondary" 
-										onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
-										+
-									</button>
-									<a href="details_menu_coffe.php?id=<?= $row['id_masakan'] ?>" class="details-text ml-3">Details</a>
-								</div>
-							</div>
-						</div>
-					<?php endwhile; ?>
-				<?php else: ?>
-					<p>Tidak ada menu tersedia.</p>
-				<?php endif; ?>
+                // Query to select the menu data for 'main_course' category
+                $query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'coffentea'";
+                $result = $connection->query($query);
+
+                // If there are results, display them
+                if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <div class="menus d-flex ftco-animate">
+                            <!-- Menu Image -->
+                            <div class="menu-img img" style="background-image: url('image/coffentea/<?= $row['image'] ?>');"></div>
+                            
+                            <!-- Menu Text Section -->
+                            <div class="text">
+                                <!-- Menu Header (Name and Bookmark Icon) -->
+                                <div class="menu-header d-flex justify-content-between align-items-center mb-2">
+                                    <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    </div>
+
+                                <!-- Price Display -->
+                                <p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
+
+                                <!-- Stock Information (Hidden by default) -->
+                                <p class="stock_menu" style="display: none;">
+                                    Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
+                                </p>
+
+                                <!-- Quantity Control (Increase/Decrease) -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="quantity-control">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
+                                        <span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
+                                        <button 
+                                            class="btn btn-sm btn-outline-secondary" 
+                                            onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
+                                            +
+                                        </button>
+                                    </div>
+                                    <!-- Link to the details page -->
+                                    <a href="details_menu_coffe.php?id=<?= $row['id_masakan'] ?>" class="details-text" style="margin-left: auto;">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>Tidak ada menu tersedia.</p>
+                <?php endif; ?>
 				<?php $connection->close(); ?>
 					
 						<span class="flat flaticon-bread" style="left: 0;"></span>
@@ -472,43 +560,62 @@ if ($id_user) {
 							<h3>Milks & Smothies </h3>
 						</div>
 
-						<?php 
-				$connection = new mysqli("localhost", "root", "", "apk_kasir");
+                        <?php 
+                // Create connection to the database
+                $connection = new mysqli("localhost", "root", "", "apk_kasir");
 
-				// Periksa koneksi
-				if ($connection->connect_error) {
-					die("Koneksi gagal: " . $connection->connect_error);
-				}
+                // Check the connection
+                if ($connection->connect_error) {
+                    die("Connection failed: " . $connection->connect_error);
+                }
 
-				$query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'milks'";
-				$result = $connection->query($query);
-				if ($result->num_rows > 0): ?>
-					<?php while ($row = $result->fetch_assoc()): ?>
-						<div class="menus d-flex ftco-animate">
-							<div class="menu-img img" style="background-image: url('image/milks/<?= $row['image'] ?>');"></div>
-							<div class="text">
-								<h3><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-								<p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
-								<p class="stock_menu" style="display: none;">
-									Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
-								</p>
-								<!-- Section Increase & Decrease -->
-								<div class="quantity-control">
-									<button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
-									<span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
-									<button 
-										class="btn btn-sm btn-outline-secondary" 
-										onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
-										+
-									</button>
-									<a href="details_menu_milks.php?id=<?= $row['id_masakan'] ?>" class="details-text ml-3">Details</a>
-								</div>
-							</div>
-						</div>
-					<?php endwhile; ?>
-				<?php else: ?>
-					<p>Tidak ada menu tersedia.</p>
-				<?php endif; ?>
+                // Query to select the menu data for 'main_course' category
+                $query = "SELECT id_masakan, image, nama_masakan, stock_menu, harga FROM masakan WHERE category = 'milks'";
+                $result = $connection->query($query);
+
+                // If there are results, display them
+                if ($result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <div class="menus d-flex ftco-animate">
+                            <!-- Menu Image -->
+                            <div class="menu-img img" style="background-image: url('image/milks/<?= $row['image'] ?>');"></div>
+                            
+                            <!-- Menu Text Section -->
+                            <div class="text">
+                                <!-- Menu Header (Name and Bookmark Icon) -->
+                                <div class="menu-header d-flex justify-content-between align-items-center mb-2">
+                                    <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    </div>
+
+                                <!-- Price Display -->
+                                <p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
+
+                                <!-- Stock Information (Hidden by default) -->
+                                <p class="stock_menu" style="display: none;">
+                                    Stok: <span id="stock_menu<?= $row['id_masakan'] ?>"><?= htmlspecialchars($row['stock_menu']) ?></span>
+                                </p>
+
+                                <!-- Quantity Control (Increase/Decrease) -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="quantity-control">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="changeQuantity(<?= $row['id_masakan'] ?>, -1)">-</button>
+                                        <span id="qty_<?= $row['id_masakan'] ?>" class="quantity-display">0</span>
+                                        <button 
+                                            class="btn btn-sm btn-outline-secondary" 
+                                            onclick="changeQuantity(<?= $row['id_masakan'] ?>, 1, '<?= $row['nama_masakan'] ?>', <?= $row['harga'] ?>)">
+                                            +
+                                        </button>
+                                    </div>
+                                    <!-- Link to the details page -->
+                                    <a href="details_menu_milks.php?id=<?= $row['id_masakan'] ?>" class="details-text" style="margin-left: auto;">Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>Tidak ada menu tersedia.</p>
+                <?php endif; ?>
 				<?php $connection->close(); ?>
 					
 					
@@ -531,12 +638,13 @@ if ($id_user) {
 			</div>
 		</div>
 	</section>
-	<section class="ftco-section ftco-wrap-about ftco-no-pb ftco-no-pt" id="about">
-    <div class="container">
+
+    <section class="ftco-section ftco-wrap-about ftco-no-pb ftco-no-pt" id="about">
+    <canvas id="sakuraCanvas"></canvas> 
+    <div class="container position-relative">
         <div class="row no-gutters">
-          
             <!-- Kolom untuk bagian About -->
-            <div class="col-lg-12 wrap-about py-5 ftco-animate img" style="background-image: url(images/about.jpg);">
+            <div class="col-lg-12 wrap-about py-5 ftco-animate img" style="background-image: url(image/meifang_about_coba/meifang_about_5.jpg); position: relative; z-index: 2;">
                 <div class="row pb-10 pb-md-0">
                     <div class="col-md-12 col-lg-7">
                         <div class="heading-section mt-5 mb-4">
@@ -795,12 +903,13 @@ function addToCart(id, namaMasakan, harga, newQty, stock) {
 
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function bookmarkMenu(id, nama, harga) {
     let formData = new FormData();
     formData.append("id_masakan", id);
     formData.append("nama_masakan", nama);
-    formData.append("harga", harga);  // Tambahkan harga
+    formData.append("harga", harga.toFixed(3)); // Format harga 10,3
 
     fetch("bookmark.php", {
         method: "POST",
@@ -808,16 +917,37 @@ function bookmarkMenu(id, nama, harga) {
     })
     .then(response => response.text())
     .then(result => {
+        let hargaFormatted = parseFloat(harga).toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+
         if (result === "added") {
-            alert(nama + " (Rp " + harga + ") ditambahkan ke bookmark.");
+            Swal.fire({
+                title: "Success!",
+                text: nama + " (Rp " + hargaFormatted + ") add to bookmark.",
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false
+            });
         } else if (result === "removed") {
-            alert(nama + " (Rp " + harga + ") dihapus dari bookmark.");
+            Swal.fire({
+                title: "Deleted!",
+                text: nama + " (Rp " + hargaFormatted + ") delete from bookmark.",
+                icon: "warning",
+                timer: 2000,
+                showConfirmButton: false
+            });
         }
     })
-    .catch(error => console.error("Error:", error));
+    .catch(error => {
+        Swal.fire({
+            title: "Error!",
+            text: "Terjadi kesalahan, coba lagi.",
+            icon: "error"
+        });
+        console.error("Error:", error);
+    });
 }
-
 </script>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -855,6 +985,86 @@ $(document).ready(function () {
     });
 });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const aboutSection = document.getElementById("about");
+        const canvas = document.getElementById("sakuraCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const sakuraImage = new Image();
+        sakuraImage.src = "image/sakura20cm/2.png"; // Path menuju gambar sakura
+
+        function setCanvasSize() {
+            const rect = aboutSection.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            canvas.style.position = "absolute";
+            canvas.style.top = "0";
+            canvas.style.left = "0";
+            canvas.style.pointerEvents = "none";
+            canvas.style.zIndex = "1";
+        }
+
+        setCanvasSize();
+        window.addEventListener("resize", setCanvasSize);
+
+        const sakuraPetals = [];
+
+        class Sakura {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 25 + 10; // Ukuran bunga sakura
+                this.speedX = Math.random() * 2 - 1; // Gerakan horizontal acak
+                this.speedY = Math.random() * 2 + 1; // Kecepatan jatuh
+                this.rotation = Math.random() * 160; // Rotasi awal
+                this.rotationSpeed = Math.random() * 6 - 1; // Kecepatan rotasi
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+
+                if (this.y > canvas.height) {
+                    this.y = -10;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.rotation * Math.PI) / 180);
+                ctx.drawImage(sakuraImage, -this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function createSakuraPetals() {
+            for (let i = 0; i < 50; i++) { // Jumlah bunga sakura
+                sakuraPetals.push(new Sakura());
+            }
+        }
+
+        function animateSakura() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            sakuraPetals.forEach((petal) => {
+                petal.update();
+                petal.draw();
+            });
+
+            requestAnimationFrame(animateSakura);
+        }
+
+        sakuraImage.onload = function () {
+            createSakuraPetals();
+            animateSakura();
+        };
+    });
+</script>
+
 
 
 	</body>

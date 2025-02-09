@@ -199,7 +199,7 @@ if ($id_order) {
     <h2 class="fw-bold mb-10 text-center">Tagihan Pembayaran</h2>
     <div class="va-container shadow">
         <div class="deadline">
-            <b>Batas Akhir Pembayaran</b>
+            <b>Payment Deadline</b>
             <p class="mb-0">
                 <span style="font-weight: bold-700; color: black;"><?php echo $dayDate; ?></span><br>
                 <span style="color: black;"><?php echo $yearTime; ?></span>

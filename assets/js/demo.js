@@ -193,7 +193,7 @@ Circles.create({
 $.notify({
 	icon: 'icon-bell',
 	title: 'Welcome To Meifag Resto Admin',
-	message: 'Kelola Menu, Pesanan, dan Laporan dengan Mudah',
+	message: 'Manage Menu, Orders, and Reports Easily',
 },{
 	type: 'secondary',
 	placement: {

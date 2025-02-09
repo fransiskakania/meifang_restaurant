@@ -1,4 +1,5 @@
 <?php
+
 include 'koneksi.php';
 
 if (!isset($_GET['id_order'])) {
@@ -27,7 +28,9 @@ $order_info = $result_info->fetch_assoc();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction Details</title>
+    <title>Meifang - Transaction Details</title>
+    <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
  <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -48,7 +51,7 @@ $order_info = $result_info->fetch_assoc();
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Nama Masakan</th>
+                            <th>Menu Name</th>
                             <th>Quantity</th>
                             <th>Price</th>
                             <th>Total</th>
@@ -74,7 +77,7 @@ $order_info = $result_info->fetch_assoc();
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="4" class="text-end">Total Harga</th>
+                            <th colspan="4" class="text-end">Total</th>
                             <th>Rp <?php echo number_format($total_harga, 3, ',', '.'); ?></th>
                         </tr>
                     </tfoot>
@@ -95,129 +98,181 @@ $order_info = $result_info->fetch_assoc();
                     <p><strong>No Meja:</strong> <?php echo htmlspecialchars($order_info['no_meja']); ?></p>
                     <p><strong>Type Order:</strong> <?php echo htmlspecialchars($order_info['type_order']); ?></p>
                     <hr>
-                    <h5 class="text-start">Total: Rp <?php echo number_format($total_harga, 0, ',', '.'); ?></h5>
-                    <button type="button" class="btn btn-danger w-100 mt-3" data-bs-toggle="modal" data-bs-target="#paymentModal">Confirm Payment</button>
+                    <h5 class="text-start">Total: Rp <?php echo number_format($total_harga, 3, ',', '.'); ?></h5>
+                    <button type="button" class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#paymentModal">Confirm Payment</button>
                 </div>
             </div>
         </div>
 
         </div>
-        <a href="index.php" class="btn btn-primary mt-3">Kembali ke Beranda</a>
+        <button id="deletePaymentBtn" class="btn btn-danger mt-3">Delete Payment</button>
 
         <!-- Modal Payment -->
-<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="paymentModalLabel">Payment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="save_transaction.php" id="paymentForm">
-                    <input type="hidden" name="id_order" value="<?php echo htmlspecialchars($id_order); ?>">
-                    <input type="hidden" name="payment_with" id="paymentMethod">
+        <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="paymentModalLabel">Payment</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="save_transaction.php" id="paymentForm">
+                            <input type="hidden" name="id_order" value="<?php echo htmlspecialchars($id_order); ?>">
+                            <input type="hidden" name="payment_with" id="paymentMethod">
 
-                    <div class="container">
+                            <div class="container">
 
-                        <!-- Cash Section -->
-                        <div class="payment-category">
-                        <b>Cash</b>
-                        <label class="payment-option  selected d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Cash', this)">
-                            <div>
-                                <img src="../assets/img/payment/money.png" alt="Cash">
-                                <span>Cash</span>
+                                <!-- Cash Section -->
+                                <div class="payment-category">
+                                <b>Cash</b>
+                                <label class="payment-option  selected d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Cash', this)">
+                                    <div>
+                                        <img src="../assets/img/payment/money.png" alt="Cash">
+                                        <span>Cash</span>
+                                    </div>
+                                    <input type="radio" id="paymentMethodsCash" name="paymentMethods" value="Cash" checked>
+                                </label>
                             </div>
-                            <input type="radio" id="paymentMethodsCash" name="paymentMethods" value="Cash" checked>
-                        </label>
+
+                                <!-- Transfer Virtual Account -->
+                                <div class="payment-category">
+                                    <b>Transfer Virtual Account</b>
+                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('BCA')">
+                                        <div>
+                                            <img src="../assets/img/payment/bca.png" alt="BCA">
+                                            <span>BCA</span>
+                                        </div>
+                                        <input type="radio" id="paymentMethodsBCA" name="paymentMethods" value="BCA">
+                                    </label>
+
+                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('BRI')">
+                                        <div>
+                                            <img src="../assets/img/payment/bri.png" alt="BRI">
+                                            <span>BRI</span>
+                                        </div>
+                                        <input type="radio" id="paymentMethodsBRI" name="paymentMethods" value="BRI">
+                                    </label>
+
+                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Mandiri')">
+                                        <div>
+                                            <img src="../assets/img/payment/mandiri.png" alt="Mandiri">
+                                            <span>Mandiri</span>
+                                        </div>
+                                        <input type="radio" id="paymentMethodsMandiri" name="paymentMethods" value="Mandiri">
+                                    </label>
+                                </div>
+
+                                <!-- E-Wallet -->
+                                <div class="payment-category">
+                                    <b>E-Wallet</b>
+                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Dana')">
+                                        <div>
+                                            <img src="../assets/img/payment/dana.png" alt="Dana">
+                                            <span>Dana</span>
+                                        </div>
+                                        <input type="radio" id="paymentMethodsDana" name="paymentMethods" value="Dana">
+                                    </label>
+
+                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('GoPay')">
+                                        <div>
+                                            <img src="../assets/img/payment/gopay.png" alt="GoPay">
+                                            <span>GoPay</span>
+                                        </div>
+                                        <input type="radio" id="paymentMethodsGoPay" name="paymentMethods" value="GoPay">
+                                    </label>
+
+                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('SeaBank')">
+                                        <div>
+                                            <img src="../assets/img/payment/seabank.png" alt="SeaBank">
+                                            <span>SeaBank</span>
+                                        </div>
+                                        <input type="radio" id="paymentMethodsSeaBank" name="paymentMethods" value="SeaBank">
+                                    </label>
+                                </div>  
+
+                                <!-- Total Payment -->
+                                <div class="mb-4">
+                                    <label class="form-label">Total Payment (Rp)</label>
+                                    <input type="text" class="form-control" id="TotalPayment" name="total_payment" value="Rp<?php echo number_format($total_harga, 3, ',', '.'); ?>" readonly>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Submit Payment</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
-
-                        <!-- Transfer Virtual Account -->
-                        <div class="payment-category">
-                            <b>Transfer Virtual Account</b>
-                            <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('BCA')">
-                                <div>
-                                    <img src="../assets/img/payment/bca.png" alt="BCA">
-                                    <span>BCA</span>
-                                </div>
-                                <input type="radio" id="paymentMethodsBCA" name="paymentMethods" value="BCA">
-                            </label>
-
-                            <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('BRI')">
-                                <div>
-                                    <img src="../assets/img/payment/bri.png" alt="BRI">
-                                    <span>BRI</span>
-                                </div>
-                                <input type="radio" id="paymentMethodsBRI" name="paymentMethods" value="BRI">
-                            </label>
-
-                            <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Mandiri')">
-                                <div>
-                                    <img src="../assets/img/payment/mandiri.png" alt="Mandiri">
-                                    <span>Mandiri</span>
-                                </div>
-                                <input type="radio" id="paymentMethodsMandiri" name="paymentMethods" value="Mandiri">
-                            </label>
-                        </div>
-
-                        <!-- E-Wallet -->
-                        <div class="payment-category">
-                            <b>E-Wallet</b>
-                            <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Dana')">
-                                <div>
-                                    <img src="../assets/img/payment/dana.png" alt="Dana">
-                                    <span>Dana</span>
-                                </div>
-                                <input type="radio" id="paymentMethodsDana" name="paymentMethods" value="Dana">
-                            </label>
-
-                            <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('GoPay')">
-                                <div>
-                                    <img src="../assets/img/payment/gopay.png" alt="GoPay">
-                                    <span>GoPay</span>
-                                </div>
-                                <input type="radio" id="paymentMethodsGoPay" name="paymentMethods" value="GoPay">
-                            </label>
-
-                            <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('SeaBank')">
-                                <div>
-                                    <img src="../assets/img/payment/seabank.png" alt="SeaBank">
-                                    <span>SeaBank</span>
-                                </div>
-                                <input type="radio" id="paymentMethodsSeaBank" name="paymentMethods" value="SeaBank">
-                            </label>
-                        </div>  
-
-                        <!-- Total Payment -->
-                        <div class="mb-4">
-                            <label class="form-label">Total Payment (Rp)</label>
-                            <input type="text" class="form-control" id="TotalPayment" name="total_payment" value="Rp<?php echo number_format($total_harga, 0, ',', '.'); ?>" readonly>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Submit Payment</button>
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
     </div>
     <script>
-function selectPaymentMethod(method) {
-    // Set nilai input hidden
-    document.getElementById("paymentMethod").value = method;
+    function selectPaymentMethod(method) {
+        // Set nilai input hidden
+        document.getElementById("paymentMethod").value = method;
 
-    // Hapus class 'active' dari semua pilihan
-    document.querySelectorAll('.payment-option').forEach(option => {
-        option.classList.remove('active');
+        // Hapus class 'active' dari semua pilihan
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.classList.remove('active');
+        });
+
+        // Tambahkan class 'active' ke elemen yang diklik
+        event.currentTarget.classList.add('active');
+    }
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.getElementById("deletePaymentBtn").addEventListener("click", function() {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This action will delete the payment permanently.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Ambil ID Order dari PHP
+            let id_order = "<?php echo htmlspecialchars($id_order); ?>";
+            
+            // Kirim request ke delete_payment.php
+            fetch("delete_payment.php?id_order=" + id_order)
+                .then(response => response.json())  // Parse JSON dari PHP
+                .then(data => {
+                    if (data.status === "success") {
+                        localStorage.removeItem("cart"); // Hapus cart dari localStorage
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "The payment has been successfully deleted.",
+                            icon: "success",
+                            confirmButtonText: "OK"
+                        }).then(() => {
+                            window.location.href = "index.php"; // Redirect setelah sukses
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Error!",
+                            text: "Failed to delete payment.",
+                            icon: "error",
+                            confirmButtonText: "OK"
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: "Error!",
+                        text: "An unexpected error occurred.",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                });
+        }
     });
-
-    // Tambahkan class 'active' ke elemen yang diklik
-    event.currentTarget.classList.add('active');
-}
+});
 </script>
 
 

@@ -136,11 +136,11 @@ $connection->close();
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item">
-                        <a href="cart.php" class="nav-link position-relative">
-                            <i class="fas fa-bookmark"></i>
-                        </a>
-                    </li>
+                     <li class="nav-item">
+                    <a href="show_bookmarks.php" class="nav-link position-relative">
+                        <i class="fas fa-bookmark"></i>
+                    </a>
+                </li>
                        <li class="nav-item">
                     <a href="./index.php#menu" class="btn btn-danger text-white order-btn">Order Now</a>
                 </li>
