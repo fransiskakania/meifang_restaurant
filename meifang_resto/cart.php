@@ -86,7 +86,7 @@ if ($id_user) {
                 </div>
 
                 <div class="mt-3">
-                    <label for="promo-code" class="form-label">Promo Code</label>
+                    <label for="promo-code" class="form-label">Voucer</label>
                     <input type="text" id="promo-code" class="form-control" placeholder="Enter your code">
                     <button class="btn btn-danger w-100 mt-2" onclick="applyPromo()">Apply</button>
                 </div>
@@ -124,7 +124,7 @@ if ($id_user) {
                                         <input type="text" class="form-control" id="name" name="name" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="no_meja" class="form-label">No Meja</label>
+                                        <label for="no_meja" class="form-label">No Table </label>
                                         <input type="number" class="form-control" id="no_meja" name="no_meja" required>
                                     </div>
                                     <div class="mb-3">
@@ -151,7 +151,7 @@ if ($id_user) {
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-  // Fungsi untuk memuat isi keranjang dari localStorage
+// Fungsi untuk memuat isi keranjang dari localStorage
 function loadCart() { 
     let cartData = localStorage.getItem("cart");
     console.log("Data cart dari localStorage:", cartData); // Debugging
@@ -168,26 +168,27 @@ function loadCart() {
     if (cart.length === 0) {
         cartBody.innerHTML = `<tr><td colspan="6" class="text-center">Keranjang Kosong</td></tr>`;
         document.getElementById("total-items").innerText = "0";
-        document.getElementById("total-cost").innerText = "Rp 0";
+        document.getElementById("total-cost").innerText = "Rp 0.000";
         return;
     }
 
     cart.forEach((item, index) => {
-        let itemTotal = item.harga * item.qty.toFixed(3);
+        let hargaItem = parseFloat(item.harga).toFixed(2);
+        let itemTotal = (parseFloat(item.harga) * item.qty).toFixed(2);
         totalItems += item.qty;
-        totalPrice += itemTotal;
+        totalPrice += parseFloat(itemTotal);
 
         cartBody.innerHTML += `
             <tr>
                 <td>${index + 1}</td>
                 <td>${item.namaMasakan}</td>
-                <td>Rp ${item.harga.toLocaleString("id-ID")}</td>
+                <td>Rp ${parseFloat(hargaItem).toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</td>
                 <td>
                     <button class="btn btn-sm btn-outline-secondary" onclick="changeCartQuantity(${item.id}, -1)">-</button>
                     <span id="cart-qty-${item.id}" class="mx-2">${item.qty}</span>
                     <button class="btn btn-sm btn-outline-secondary" onclick="changeCartQuantity(${item.id}, 1)">+</button>
                 </td>
-                <td>Rp ${itemTotal.toLocaleString("id-ID")}</td>
+                <td>Rp ${parseFloat(itemTotal).toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</td>
                 <td>
                     <button class="btn btn-outline-danger" onclick="removeFromCart(${item.id})">
                         <i class="fa fa-times"></i>
@@ -199,15 +200,15 @@ function loadCart() {
 
     // Update Order Summary
     document.getElementById("total-items").innerText = totalItems;
-    document.getElementById("total-cost").innerText = "Rp " + totalPrice.toLocaleString("id-ID");
+    document.getElementById("total-cost").innerText = "Rp " + totalPrice.toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 
     // Simpan data keranjang ke dalam form sebelum submit
     document.getElementById("cart_data").value = JSON.stringify(cart.map(item => ({
-    ...item,
-    harga: parseFloat(item.harga).toFixed(2) // Pastikan harga tetap memiliki dua desimal
-})));
-
+        ...item,
+        harga: parseFloat(item.harga).toFixed(3) // Pastikan harga tetap memiliki dua desimal
+    })));
 }
+
 
 
     function changeCartQuantity(id, amount) {
@@ -270,14 +271,14 @@ function applyPromo() {
             Swal.fire({
                 icon: "warning",
                 title: "Oops...",
-                text: "Please enter a promo code!",
+                text: "Please enter a voucer code!",
                 confirmButtonColor: "#3085d6" // Tombol biru
             });
         } else {
             Swal.fire({
                 icon: "success",
                 title: "Success!",
-                text: "Promo applied: " + promoCode,
+                text: "Voucer applied: " + promoCode,
                 confirmButtonColor: "#3085d6" // Tombol biru
             });
         }
@@ -287,6 +288,46 @@ function applyPromo() {
 updateOrderSummary();
 
 
+</script>
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // Get parameters from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    const message = urlParams.get('message');
+    const id_order = urlParams.get('id_order');
+
+    if (status === "success") {
+        Swal.fire({
+            icon: 'success',
+            title: 'Order Confirmed!',
+            text: 'Your order has been successfully placed. Order ID: ' + id_order,
+            confirmButtonColor: '#3085d6'
+        }).then(() => {
+            window.location.href = "transaction.php?id_order=" + id_order;
+        });
+    } else if (status === "empty") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Your cart is empty!',
+            text: 'Please add items before placing an order.',
+            confirmButtonColor: '#f39c12'
+        });
+    } else if (status === "error") {
+        Swal.fire({
+            icon: 'error',
+            title: 'An error occurred!',
+            text: message || 'Something went wrong. Please try again later.',
+            confirmButtonColor: '#d33'
+        });
+    }
+
+    // Remove URL parameters after showing the alert
+    if (status) {
+        window.history.replaceState(null, null, window.location.pathname);
+    }
 </script>
 
 <!-- Bootstrap JS -->

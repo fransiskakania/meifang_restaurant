@@ -180,7 +180,7 @@ if (isset($_GET['id_order']) && isset($_GET['total_payment'])) {
                         <span class="tooltip">Salin</span>
                     </a>
                 </h5>
-                <p class="mb-1 mt-3">Total Tagihan</p>
+                <p class="mb-1 mt-3">Total Invoice</p>
                 <h4 class="bold d-flex align-items-center justify-content-between">
                     <span class="total-payment">
                         <strong id="totalPayment">Rp <?php echo number_format($total_payment, 3, ',', '.'); ?></strong>
@@ -189,14 +189,19 @@ if (isset($_GET['id_order']) && isset($_GET['total_payment'])) {
                             <span class="tooltip">Salin</span>
                         </a>
                     </span>
-                    <a href="digital_payment.php" class="detail-order">Detail Order</a>
-                </h4>
+                    <a href="payment_guide.php" onclick="
+                        localStorage.removeItem('cart'); // Hapus cart dari localStorage
+                        window.location.href = 'payment_guide2.php?id_order=<?php echo $id_order; ?>&total_payment=<?php echo $total_payment; ?>&payment_with=<?php echo $payment_with; ?>';
+                        return false;" class="detail-order">
+                        <i class="fas fa-info-circle"></i> Payment Guide
+                    </a>                </h4>
             </div>
         </div>
 
         <div class="d-grid mt-3">
-            <button class="btn btn-primary px-4" onclick="window.location.href='index.php#menu'"><b>Back</b></button>
-        </div>
+        <button class="btn btn-primary px-4" onclick="window.location.href='detail_order.php?id_order=<?= $_GET['id_order'] ?>'">
+        <b>Detail Order</b>
+    </button>        </div>
     </div>
 </div>
 

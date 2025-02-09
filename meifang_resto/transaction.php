@@ -91,11 +91,11 @@ $order_info = $result_info->fetch_assoc();
                     <h5 class="mb-0">Order Summary</h5>
                 </div>
                 <div class="card-body">
+                <p><strong>Date:</strong> <?php echo htmlspecialchars($order_info['tanggal']); ?></p>
                     <p><strong>ID Order:</strong> <?php echo htmlspecialchars($id_order); ?></p>
-                    <p><strong>Tanggal:</strong> <?php echo htmlspecialchars($order_info['tanggal']); ?></p>
                     <p><strong>User Role:</strong> <?php echo htmlspecialchars($order_info['user_role']); ?></p>
-                    <p><strong>Nama:</strong> <?php echo htmlspecialchars($order_info['name']); ?></p>
-                    <p><strong>No Meja:</strong> <?php echo htmlspecialchars($order_info['no_meja']); ?></p>
+                    <p><strong>Name:</strong> <?php echo htmlspecialchars($order_info['name']); ?></p>
+                    <p><strong>No Table:</strong> <?php echo htmlspecialchars($order_info['no_meja']); ?></p>
                     <p><strong>Type Order:</strong> <?php echo htmlspecialchars($order_info['type_order']); ?></p>
                     <hr>
                     <h5 class="text-start">Total: Rp <?php echo number_format($total_harga, 3, ',', '.'); ?></h5>
