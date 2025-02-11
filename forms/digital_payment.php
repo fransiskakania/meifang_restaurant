@@ -92,7 +92,7 @@ $total_digital_payment = $row['total_digital_payment'] ? $row['total_digital_pay
   <html lang="en">
     <head>
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-      <title>History Transaksi </title>
+      <title>Meifang Resto - History Transaksi</title>
       <meta
         content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
         name="viewport"
@@ -1000,13 +1000,28 @@ if ($result && $result->num_rows > 0) {
       </div>
       <form action="process_topup.php" method="POST">
         <div class="modal-body">
+          <!-- ID Order -->
           <div class="mb-3">
-            <label for="id_order" class="form-label">Nomor Rekening</label>
+            <label for="id_order" class="form-label">No Id</label>
             <input type="text" class="form-control" id="id_order" name="id_order" placeholder="Masukkan No Rekening" required>
           </div>
+
+          <!-- Price (diambil otomatis berdasarkan id_order) -->
           <div class="mb-3">
-            <label for="price" class="form-label">Jumlah (Price)</label>
-            <input type="text" class="form-control" id="price" name="price" placeholder="Masukkan Jumlah Harga" required>
+            <label for="price" class="form-label">Price</label>
+            <input type="text" class="form-control" id="price" name="price" readonly>
+          </div>
+
+          <!-- Cash Amount (Tampil jika payment_with = 'cash') -->
+          <div class="mb-3" id="cashAmountContainer" style="display: none;">
+            <label for="cash_amount" class="form-label">Cash Amount (Rp)</label>
+            <input type="number" class="form-control" id="cash_amount" name="cash_amount">
+          </div>
+
+          <!-- Change Amount (Tampil jika payment_with = 'cash') -->
+          <div class="mb-3" id="changeAmountContainer" style="display: none;">
+            <label for="change_amount" class="form-label">Change Amount (Rp)</label>
+            <input type="text" class="form-control" id="change_amount" name="change_amount" readonly>
           </div>
         </div>
         <div class="modal-footer">
@@ -1569,7 +1584,48 @@ if ($result && $result->num_rows > 0) {
         });
     });
 </script>
+<!-- AJAX untuk Mengambil Data -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#id_order').on('change', function () {
+      var id_order = $(this).val();
 
+      // Request ke server untuk mendapatkan price dan payment_with
+      $.ajax({
+        url: 'get_order_details.php',
+        type: 'POST',
+        data: { id_order: id_order },
+        dataType: 'json',
+        success: function (response) {
+          if (response.success) {
+            $('#price').val(response.price);
+
+            // Cek metode pembayaran
+            if (response.payment_with === 'Cash') {
+              $('#cashAmountContainer').show();
+              $('#changeAmountContainer').show();
+            } else {
+              $('#cashAmountContainer').hide();
+              $('#changeAmountContainer').hide();
+            }
+          } else {
+            alert('ID Order tidak ditemukan!');
+          }
+        }
+      });
+    });
+
+    // Hitung Change Amount otomatis
+    $('#cash_amount').on('input', function () {
+      var cashAmount = parseFloat($(this).val()) || 0;
+      var price = parseFloat($('#price').val()) || 0;
+      var change = cashAmount - price;
+
+      $('#change_amount').val(change >= 0 ? change.toFixed(3) : '0.000');
+    });
+  });
+</script>
 
   </body>
 </html>

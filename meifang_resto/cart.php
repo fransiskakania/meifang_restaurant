@@ -110,7 +110,6 @@ if ($id_user) {
                             <form method="POST" action="confirm_order.php">
                                 <div class="modal-body">
                                 <input type="hidden" id="cart_data" name="cart_data">
-
                                     <div class="mb-3">
                                         <label for="tanggal" class="form-label">Date</label>
                                         <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?php echo date('Y-m-d'); ?>" readonly>
@@ -173,8 +172,8 @@ function loadCart() {
     }
 
     cart.forEach((item, index) => {
-        let hargaItem = parseFloat(item.harga).toFixed(2);
-        let itemTotal = (parseFloat(item.harga) * item.qty).toFixed(2);
+        let hargaItem = parseFloat(item.harga).toFixed(3);
+        let itemTotal = (parseFloat(item.harga) * item.qty).toFixed(3);
         totalItems += item.qty;
         totalPrice += parseFloat(itemTotal);
 
@@ -211,28 +210,48 @@ function loadCart() {
 
 
 
-    function changeCartQuantity(id, amount) {
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        let item = cart.find(item => item.id === id);
+function changeCartQuantity(id, amount) {
+    fetch(`get_stock.php?id_masakan=${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
 
-        if (!item) return;
+            let stock = data.stock; // Stok dari database
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            let item = cart.find(item => item.id === id);
 
-        let newQty = item.qty + amount;
+            if (!item) return;
 
-        if (newQty < 1) {
-            removeFromCart(id);
-            return;
-        }
+            let newQty = item.qty + amount;
 
-        if (newQty > item.stock) {
-            alert("Stok tidak mencukupi!");
-            return;
-        }
+            if (newQty < 1) {
+                removeFromCart(id);
+                return;
+            }
 
-        item.qty = newQty;
-        localStorage.setItem("cart", JSON.stringify(cart));
-        loadCart();
-    }
+            if (newQty > stock) {
+                alert("Stok tidak mencukupi!");
+                return;
+            }
+
+            item.qty = newQty;
+            localStorage.setItem("cart", JSON.stringify(cart));
+            loadCart();
+        })
+        .catch(error => console.error("Error fetching stock:", error));
+}
+function showStock(id) {
+    fetch(`get_stock.php?id_masakan=${id}`)
+        .then(response => response.text())
+        .then(stock => {
+            document.getElementById(`stock-${id}`).innerText = `Stok: ${stock}`;
+        })
+        .catch(error => console.error("Error fetching stock:", error));
+}
+
 
     function removeFromCart(id) {
         let cart = JSON.parse(localStorage.getItem("cart")) || [];

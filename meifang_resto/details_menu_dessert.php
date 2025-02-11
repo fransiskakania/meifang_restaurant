@@ -40,7 +40,7 @@ $connection->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detail Menu - <?= htmlspecialchars($row['nama_masakan']) ?></title>
+    <title>Details Menu - <?= htmlspecialchars($row['nama_masakan']) ?></title>
     <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -183,8 +183,7 @@ $connection->close();
 
                         <!-- Action Buttons -->
                         <div class="d-flex flex-column flex-md-row justify-content-center">
-                            <button class="btn btn-secondary mb-2 mb-md-0 me-md-2 w-100" onclick="window.location.href='menu.php'">Back</button>
-                            <button class="btn btn-primary w-100" onclick="addToCart()">Add To Cart</button>
+  <button class="btn btn-secondary mb-2 mb-md-0 me-md-2 w-100" onclick="window.location.href='index.php'">Back</button>                            <button class="btn btn-primary w-100" onclick="addToCart()">Add To Cart</button>
                         </div>
                     </div>
                 </div>

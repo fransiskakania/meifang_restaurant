@@ -69,7 +69,7 @@ if (isset($_GET['id_order'])) {
             </tfoot>
         </table>
         <div class="d-flex justify-content-between">
-            <a href="index.php#menu" class="btn btn-danger">Home</a>
+            <a href="index.php" class="btn btn-danger">Home</a>
             <a href="order_pdf.php?id_order=<?= $id_order ?>" class="btn btn-primary">Save data</a>
         </div>
     </div>

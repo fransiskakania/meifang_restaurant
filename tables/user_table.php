@@ -29,7 +29,7 @@ if ($result && $result->num_rows > 0) {
   <html lang="en">
     <head>
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-      <title>Tables - Kaiadmin Bootstrap 5 Admin Dashboard</title>
+      <title>Meifang Resto - User Login</title>
       <meta
         content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
         name="viewport"

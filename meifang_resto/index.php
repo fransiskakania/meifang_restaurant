@@ -28,7 +28,7 @@ if ($id_user) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Meifang Restaurant - Meifang Restaurant authentic Chinese dishes</title>
+	<title>Meifang Resto</title>
     <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
