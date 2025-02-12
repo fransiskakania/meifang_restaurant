@@ -766,11 +766,11 @@ $conn->close();
                     aria-expanded="false"
                   >
                     <div class="avatar-sm">
-                      <img
-                        src="./assets/img/profile/1.png"
-                        alt="..."
-                        class="avatar-img rounded-circle"
-                      />
+                       <img
+                          src="../assets/img/profile/jane.png"
+                          alt="..."
+                          class="avatar-img rounded-circle"
+                        />
                     </div>
                     <span class="profile-username">
                       <span class="op-7">Hi,</span>

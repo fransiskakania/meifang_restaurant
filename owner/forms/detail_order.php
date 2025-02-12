@@ -788,7 +788,7 @@ if (isset($_GET['status'])) {
                           <div class="user-box">
                             <div class="avatar-lg">
                               <img
-                                   src="../assets/img/profile/1.png"
+                                   src="../assets/img/profile/jane.png"
                                 alt="image profile"
                                 class="avatar-img rounded"
                               />

@@ -3,26 +3,31 @@ session_start();
 include 'koneksi2.php'; // Include your database connection file
 
 // Query untuk mengambil nama_lengkap berdasarkan id_user
-$id_user = $_SESSION['id_user'] ?? null; // Pastikan id_user berasal dari sesi atau sumber valid
-if ($id_user) {
-    $sql = "SELECT nama_lengkap,username FROM user WHERE id_user = '$id_user'";
-    $result = $conn->query($sql);
-
-    if ($result && $result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $nama_lengkap = $row['nama_lengkap'];
-        $username = $row['username'];
-
-    } else {
-        $nama_lengkap = "Guest";
-        $username = "Not avalaible";
-
-    }
-} else {
-    $nama_lengkap = "Guest";
-    $username = "Not avalaible";
-
+// Pastikan session id_user ada sebelum mengaksesnya
+if (!isset($_SESSION['id_user'])) {
+  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
+  exit(); // Hentikan eksekusi script
 }
+
+// Ambil id_user dari session
+$id_user = $_SESSION['id_user'];
+
+// Query untuk mengambil data pengguna berdasarkan id_user
+$sql = "SELECT id_user, username, nama_lengkap, id_level FROM user WHERE id_user = '$id_user'";
+$result = $conn->query($sql);
+
+// Jika query gagal atau tidak ada hasil, tampilkan error dan redirect
+if (!$result || $result->num_rows == 0) {
+  echo "<script>alert('Error: Id User tidak ditemukan!'); window.location.href='../login.php';</script>";
+  exit();
+}
+
+// Ambil data pengguna
+$row = $result->fetch_assoc();
+$nama_lengkap = $row['nama_lengkap'];
+$username = $row['username'];
+$id_level = $row['id_level'];
+
 // Handle form submission to add a new menu item
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $menuName = mysqli_real_escape_string($conn, $_POST['menuName']);
@@ -792,7 +797,7 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                     >
                       <div class="avatar-sm">
                         <img
-                         src="../assets/img/profile/1.png"
+                         src="../assets/img/profile/jane.png"
                           alt="..."
                           class="avatar-img rounded-circle"
                         />
@@ -808,7 +813,7 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                           <div class="user-box">
                             <div class="avatar-lg">
                               <img
-                                   src="../assets/img/profile/1.png"
+                                   src="../assets/img/profile/jane.png"
                                 alt="image profile"
                                 class="avatar-img rounded"
                               />

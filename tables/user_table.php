@@ -3,6 +3,12 @@ session_start();
 
 include 'koneksi.php';
 
+// Pastikan session id_user ada sebelum mengaksesnya
+if (!isset($_SESSION['id_user'])) {
+    echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
+    exit(); // Hentikan eksekusi script
+}
+
 // Ambil id_user dari session
 $id_user = $_SESSION['id_user'];
 
@@ -10,18 +16,17 @@ $id_user = $_SESSION['id_user'];
 $sql = "SELECT id_user, username, nama_lengkap, id_level FROM user WHERE id_user = '$id_user'";
 $result = $conn->query($sql);
 
-// Inisialisasi variabel untuk menyimpan data pengguna
-if ($result && $result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $nama_lengkap = $row['nama_lengkap'];
-    $username = $row['username'];
-    $id_level = $row['id_level'];
-} else {
-    $nama_lengkap = "Guest";
-    $username = "Not available";
-    $id_level = "Unknown";
+// Jika query gagal atau tidak ada hasil, tampilkan error dan redirect
+if (!$result || $result->num_rows == 0) {
+    echo "<script>alert('Error: Id User tidak ditemukan!'); window.location.href='../login.php';</script>";
+    exit();
 }
 
+// Ambil data pengguna
+$row = $result->fetch_assoc();
+$nama_lengkap = $row['nama_lengkap'];
+$username = $row['username'];
+$id_level = $row['id_level'];
 ?>
 
 
@@ -717,9 +722,9 @@ if ($result && $result->num_rows > 0) {
                       href="#"
                       aria-expanded="false"
                     >
-                      <div class="avatar-sm">
+                    <div class="avatar-sm">
                         <img
-                          src="../assets/img/profile/1.png"
+                          src="../assets/img/profile/jane.png"
                           alt="..."
                           class="avatar-img rounded-circle"
                         />
@@ -735,7 +740,7 @@ if ($result && $result->num_rows > 0) {
                           <div class="user-box">
                             <div class="avatar-lg">
                               <img
-                                src="../assets/img/profile/1.png"
+                                src="../assets/img/profile/jane.png"
                                 alt="image profile"
                                 class="avatar-img rounded"
                               />

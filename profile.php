@@ -43,7 +43,9 @@ if ($id_user) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile Page</title>
+  <title>Meifang Resto - Profile Page</title>
+  <link rel="icon" href="assets/img/meifang_resto_logo/2.svg" type="image/x-icon"/>
+
   <!-- Bootstrap CSS -->
   <link
     href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
@@ -90,7 +92,7 @@ if ($id_user) {
     <div class="profile-card card">
       <div class="card-header">
         <img
-          src="./assets/img/profile/1.png"
+          src="./assets/img/profile/jane.png"
           alt="Profile Picture"
           id="profile-pic"
         />

@@ -67,8 +67,7 @@ if (empty($order_details)) {
 }
 
 // Retrieve total_payment from POST or GET
-$totalPayment = isset($_POST['total_payment']) ? $_POST['total_payment'] : (isset($_GET['totalPayment']) ? $_GET['totalPayment'] : 0);
-$totalPayment = (float)str_replace(['Rp', ], '', $totalPayment);
+
 
 // Prepare the SQL insert query
 $sql_insert = "INSERT INTO transaksi (user_role, date, no_meja, name, id_order, nama_masakan, quantity, price, type_order, status_order, payment_with, total_payment, cash_amount, change_amount) 
@@ -76,9 +75,15 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql_insert);
 
 // Retrieve additional inputs
-$paymentMethod = isset($_POST['payment_with']) ? $_POST['payment_with'] : '';
-$cashAmount = isset($_POST['cash_amount']) ? (float)$_POST['cash_amount'] : 0;
-$changeAmount = isset($_POST['change_amount']) ? (float)$_POST['change_amount'] : 0.00;
+$totalPayment = isset($_POST['total_payment']) ? $_POST['total_payment'] : '0';
+$cashAmount = isset($_POST['cash_amount']) ? $_POST['cash_amount'] : '0';
+$changeAmount = isset($_POST['change_amount']) ? $_POST['change_amount'] : '0';
+$paymentMethod = isset($_POST['payment_with']) ? $_POST['payment_with'] : ''; 
+
+$totalPayment = round((float) str_replace(['Rp', '.', ','], '', $totalPayment), 2);
+$cashAmount = round((float) str_replace(['Rp', '.', ','], '', $cashAmount), 2);
+$changeAmount = round((float) str_replace(['Rp', '.', ','], '', $changeAmount), 2);
+
 
 $status_order = (strtolower($paymentMethod) === 'cash') ? "Success" : "Pending";
 

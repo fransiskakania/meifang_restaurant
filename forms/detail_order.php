@@ -2,27 +2,31 @@
 session_start();
 include 'koneksi.php'; // Include your database connection file
 
-// Query untuk mengambil nama_lengkap berdasarkan id_user
-$id_user = $_SESSION['id_user'] ?? null; // Pastikan id_user berasal dari sesi atau sumber valid
-if ($id_user) {
-    $sql = "SELECT nama_lengkap,username FROM user WHERE id_user = '$id_user'";
-    $result = $conn->query($sql);
-
-    if ($result && $result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $nama_lengkap = $row['nama_lengkap'];
-        $username = $row['username'];
-
-    } else {
-        $nama_lengkap = "Guest";
-        $username = "Not avalaible";
-
-    }
-} else {
-    $nama_lengkap = "Guest";
-    $username = "Not avalaible";
-
+// Pastikan session id_user ada sebelum mengaksesnya
+if (!isset($_SESSION['id_user'])) {
+  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
+  exit(); // Hentikan eksekusi script
 }
+
+// Ambil id_user dari session
+$id_user = $_SESSION['id_user'];
+
+// Query untuk mengambil data pengguna berdasarkan id_user
+$sql = "SELECT id_user, username, nama_lengkap, id_level FROM user WHERE id_user = '$id_user'";
+$result = $conn->query($sql);
+
+// Jika query gagal atau tidak ada hasil, tampilkan error dan redirect
+if (!$result || $result->num_rows == 0) {
+  echo "<script>alert('Error: Id User tidak ditemukan!'); window.location.href='../login.php';</script>";
+  exit();
+}
+
+// Ambil data pengguna
+$row = $result->fetch_assoc();
+$nama_lengkap = $row['nama_lengkap'];
+$username = $row['username'];
+$id_level = $row['id_level'];
+
 // Step 1: Fetch the total payment
 $query_total_payment = "SELECT SUM(price * quantity) AS total_payment FROM orders";
 $result_total_payment = mysqli_query($conn, $query_total_payment);
@@ -772,7 +776,7 @@ if (isset($_GET['status'])) {
                     >
                       <div class="avatar-sm">
                         <img
-                         src="../assets/img/profile/1.png"
+                         src="../assets/img/profile/jane.png"
                           alt="..."
                           class="avatar-img rounded-circle"
                         />
@@ -788,7 +792,7 @@ if (isset($_GET['status'])) {
                           <div class="user-box">
                             <div class="avatar-lg">
                               <img
-                                   src="../assets/img/profile/1.png"
+                                   src="../assets/img/profile/jane.png"
                                 alt="image profile"
                                 class="avatar-img rounded"
                               />

@@ -33,16 +33,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $insertStmt->close();
 
             // Update stok jika status_order adalah "Cash" (di kasir)
-            if ($status_order === "Success") {  // Stok hanya dikurangi jika pembayaran dilakukan di kasir (Cash)
-                $sql_update_stock = "UPDATE masakan SET stock_menu = stock_menu - ? WHERE nama_masakan = ?";
-                $stmt_update = $conn->prepare($sql_update_stock);
-                $stmt_update->bind_param("is", $quantity, $nama_masakan);
-
-                if (!$stmt_update->execute()) {
-                    echo "Error updating stock for " . $nama_masakan . ": " . $stmt_update->error . "\n";
-                }
-                $stmt_update->close();
+            $sql_update_stock = "UPDATE masakan SET stock_menu = stock_menu - ? WHERE nama_masakan = ?";
+            $stmt_update = $conn->prepare($sql_update_stock);
+            $stmt_update->bind_param("is", $quantity, $nama_masakan);
+            
+            if (!$stmt_update->execute()) {
+                echo "Error updating stock for " . $nama_masakan . ": " . $stmt_update->error . "\n";
             }
+            
+            $stmt_update->close();
+            
         }
     }
 

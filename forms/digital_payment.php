@@ -9,29 +9,30 @@ if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
-// Cek apakah session id_user tersedia
-$id_user = $_SESSION['id_user'] ?? null;
-if ($id_user) {
-    // Hindari SQL Injection dengan prepared statement
-    $stmt = $conn->prepare("SELECT nama_lengkap, username FROM user WHERE id_user = ?");
-    $stmt->bind_param("i", $id_user); // 'i' untuk tipe integer
-    $stmt->execute();
-    $userResult = $stmt->get_result();
-
-    if ($userResult && $userResult->num_rows > 0) {
-        $row = $userResult->fetch_assoc();
-        $nama_lengkap = $row['nama_lengkap'];
-        $username = $row['username'];
-    } else {
-        $nama_lengkap = "Guest";
-        $username = "Not available";
-    }
-
-    $stmt->close();
-} else {
-    $nama_lengkap = "Guest";
-    $username = "Not available";
+// Pastikan session id_user ada sebelum mengaksesnya
+if (!isset($_SESSION['id_user'])) {
+  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
+  exit(); // Hentikan eksekusi script
 }
+
+// Ambil id_user dari session
+$id_user = $_SESSION['id_user'];
+
+// Query untuk mengambil data pengguna berdasarkan id_user
+$sql = "SELECT id_user, username, nama_lengkap, id_level FROM user WHERE id_user = '$id_user'";
+$result = $conn->query($sql);
+
+// Jika query gagal atau tidak ada hasil, tampilkan error dan redirect
+if (!$result || $result->num_rows == 0) {
+  echo "<script>alert('Error: Id User tidak ditemukan!'); window.location.href='../login.php';</script>";
+  exit();
+}
+
+// Ambil data pengguna
+$row = $result->fetch_assoc();
+$nama_lengkap = $row['nama_lengkap'];
+$username = $row['username'];
+$id_level = $row['id_level'];
 
 // Query untuk mengambil data transaksi
 $query = "SELECT DISTINCT id_order, date, user_role, payment_with, total_payment, status_order 
@@ -774,7 +775,7 @@ $total_digital_payment = $row['total_digital_payment'] ? $row['total_digital_pay
                     >
                       <div class="avatar-sm">
                         <img
-                         src="../assets/img/profile/1.png"
+                         src="../assets/img/profile/jane.png"
                           alt="..."
                           class="avatar-img rounded-circle"
                         />
@@ -790,7 +791,7 @@ $total_digital_payment = $row['total_digital_payment'] ? $row['total_digital_pay
                           <div class="user-box">
                             <div class="avatar-lg">
                               <img
-                                   src="../assets/img/profile/1.png"
+                                   src="../assets/img/profile/jane.png"
                                 alt="image profile"
                                 class="avatar-img rounded"
                               />
@@ -1003,7 +1004,7 @@ if ($result && $result->num_rows > 0) {
           <!-- ID Order -->
           <div class="mb-3">
             <label for="id_order" class="form-label">No Id</label>
-            <input type="text" class="form-control" id="id_order" name="id_order" placeholder="Masukkan No Rekening" required>
+            <input type="text" class="form-control" id="id_order" name="id_order" placeholder="Masukkan Nomor Order" required>
           </div>
 
           <!-- Price (diambil otomatis berdasarkan id_order) -->
@@ -1015,8 +1016,8 @@ if ($result && $result->num_rows > 0) {
           <!-- Cash Amount (Tampil jika payment_with = 'cash') -->
           <div class="mb-3" id="cashAmountContainer" style="display: none;">
             <label for="cash_amount" class="form-label">Cash Amount (Rp)</label>
-            <input type="number" class="form-control" id="cash_amount" name="cash_amount">
-          </div>
+            <input type="number" class="form-control" id="cash_amount" name="cash_amount" step="any">
+            </div>
 
           <!-- Change Amount (Tampil jika payment_with = 'cash') -->
           <div class="mb-3" id="changeAmountContainer" style="display: none;">

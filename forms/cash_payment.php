@@ -28,7 +28,8 @@ echo "<script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipt</title>
+    <title> Meifang Resto - Notification</title>
+    <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
     <!-- Google Font: Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -212,10 +213,10 @@ echo "<script>
 
         <!-- Total Section -->
         <div class="total-section">
-        <div><span>Sub Total:</span><span>Rp <?= number_format($totalPayment, 3) ?></span></div>
-        <div><span>Total:</span><span><strong style="color: blue;">Rp <?= number_format($totalPayment, 2) ?></strong></span></div>
-        <div><span>Cash Paid:</span><span>Rp <?= number_format($cashAmount, 3) ?></span></div>
-        <div><span>Change:</span><span>Rp <?= number_format($changeAmount, 3) ?></span></div>
+        <div><span>Sub Total:</span><span>Rp <?= number_format($totalPayment, ) ?></span></div>
+        <div><span>Total:</span><span><strong style="color: blue;">Rp <?= number_format($totalPayment, ) ?></strong></span></div>
+        <div><span>Cash Paid:</span><span>Rp <?= number_format($cashAmount, ) ?></span></div>
+        <div><span>Change:</span><span>Rp <?= number_format($changeAmount, ) ?></span></div>
 
     </div>
 

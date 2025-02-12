@@ -26,37 +26,28 @@ $deadline->modify('+15 minutes'); // Memajukan deadline 15 menit
 $dayDate = $deadline->format('l, d F'); // Format hari, tanggal, dan bulan
 $yearTime = $deadline->format('Y, H:i'); // Format tahun dan waktu
 
-$id_order = isset($_GET['id_order']) ? htmlspecialchars($_GET['id_order']) : 'ID Order tidak ditemukan';
-
-// Fetch payment method from the database based on id_order
-$query = "SELECT payment_with FROM transaksi WHERE id_order = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $id_order);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    // Assuming there's only one transaction with the provided id_order
-    $row = $result->fetch_assoc();
-    $payment_with = $row['payment_with'];
-
-    // Simpan deadline ke database
-    $update_query = "UPDATE transaksi SET deadline = ? WHERE id_order = ?";
-    $update_stmt = $conn->prepare($update_query);
-    $deadlineFormatted = $deadline->format('Y-m-d H:i:s'); // Format deadline untuk database
-    $update_stmt->bind_param("si", $deadlineFormatted, $id_order);
-
-    if ($update_stmt->execute()) {
-        echo "Deadline berhasil disimpan.";
-    } else {
-        echo "Gagal menyimpan deadline: " . $conn->error;
-    }
-} else {
-    $payment_with = 'Payment method not found';
-    echo "ID Order tidak ditemukan.";
-}
+$id_order = isset($_GET['id_order']) ? htmlspecialchars($_GET['id_order']) : null;
 
 if ($id_order) {
+    // Fetch payment method from the database based on id_order
+    $query = "SELECT payment_with FROM transaksi WHERE id_order = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $id_order);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $payment_with = $row['payment_with'];
+
+        // Simpan deadline ke database
+        $update_query = "UPDATE transaksi SET deadline = ? WHERE id_order = ?";
+        $update_stmt = $conn->prepare($update_query);
+        $deadlineFormatted = $deadline->format('Y-m-d H:i:s');
+        $update_stmt->bind_param("si", $deadlineFormatted, $id_order);
+        $update_stmt->execute();
+    }
+
     // Ambil deadline dari tabel transaksi
     $query = "SELECT deadline, status_order FROM transaksi WHERE id_order = ?";
     $stmt = $conn->prepare($query);
@@ -75,21 +66,11 @@ if ($id_order) {
             $update_query = "UPDATE transaksi SET status_order = 'canceled' WHERE id_order = ?";
             $update_stmt = $conn->prepare($update_query);
             $update_stmt->bind_param("i", $id_order);
-
-            if ($update_stmt->execute()) {
-                echo "Status order telah diubah menjadi 'canceled'.";
-            } else {
-                echo "Gagal mengubah status order: " . $conn->error;
-            }
-        } else {
-            echo "Pembayaran masih dalam batas waktu";
+            $update_stmt->execute();
         }
-    } else {
-        echo "ID Order tidak ditemukan.";
     }
-} else {
-    echo "ID Order tidak diberikan.";
 }
+
 ?>
 
 
@@ -101,7 +82,8 @@ if ($id_order) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tagihan Pembayaran</title>
+    <title> Meifang Resto - Notification</title>
+    <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -196,7 +178,7 @@ if ($id_order) {
 </head>
 <body class="bg-light">
 <div class="container mt-5">
-    <h2 class="fw-bold mb-10 text-center">Tagihan Pembayaran</h2>
+    <h2 class="fw-bold mb-10 text-center">Payment Invoice</h2>
     <div class="va-container shadow">
         <div class="deadline">
             <b>Payment Deadline</b>
@@ -254,14 +236,14 @@ if ($id_order) {
                 <p class="mb-1 mt-3">Total Tagihan</p>
                 <h4 class="bold d-flex align-items-center justify-content-between">
                     <span class="total-payment">
-                        <strong id="totalPayment">Rp <?php echo number_format($totalPayment, 3, ',', '.'); ?></strong>
-                        <a href="#" class="copy-icon" onclick="copyText('totalPayment')">
+                    <strong id="totalPayment">Rp <?php echo number_format($totalPayment, 0, ',', '.'); ?></strong>
+                    <a href="#" class="copy-icon" onclick="copyText('totalPayment')">
                             <i class="far fa-copy"></i>
                             <span class="tooltip">Salin</span>
                         </a>
                     </span>
-                    <a href="digital_payment.php" class="detail-order">Detail Order</a>
-                </h4>
+                    <a href="details_order.php?id_order=<?= $_GET['id_order'] ?>" class="detail-order">Details Order</a>
+                    </h4>
             </div>
         </div>
 

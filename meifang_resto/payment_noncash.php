@@ -201,7 +201,8 @@ if (isset($_GET['id_order']) && isset($_GET['total_payment'])) {
         <div class="d-grid mt-3">
         <button class="btn btn-primary px-4" onclick="window.location.href='detail_order.php?id_order=<?= $_GET['id_order'] ?>'">
         <b>Detail Order</b>
-    </button>        </div>
+    </button>     
+   </div>
     </div>
 </div>
 

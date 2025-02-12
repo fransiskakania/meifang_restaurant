@@ -9,7 +9,8 @@ if (!$conn) {
 
 // Ambil id_order dari URL
 $id_order = $_GET['id_order'] ?? null;
-
+$cashAmount = $_GET['cash_amount'] ?? 0;
+$changeAmount = $_GET['change_amount'] ?? 0;
 if ($id_order) {
     // Ambil data transaksi berdasarkan ID Order
     $stmt = $conn->prepare("SELECT * FROM transaksi WHERE id_order = ?");
@@ -44,7 +45,8 @@ mysqli_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receipt</title>
+    <title>Meifang Resto - Struck Order</title>
+    <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -178,7 +180,7 @@ mysqli_close($conn);
         <div class="receipt-header">
             <img src="https://cdn-icons-png.flaticon.com/512/1533/1533161.png" alt="Shop Logo">
             <div class="shop-info">Meifang Resto</div>
-            <div>Jl. Dr. Ir. H. Soekarno No.19, Surabaya<br>No. Telp: 0812345678</div>
+            <div> Main Street, City, Country<br>No. Telp: 0812345678</div>
         </div>
 
         <hr>
@@ -216,10 +218,17 @@ mysqli_close($conn);
         </div>
         <!-- Total Section -->
         <div class="total-section">
-            <div><span>Sub Total:</span><span>Rp <?= number_format($transaction['total_payment'], 3) ?></span></div>
-            <div><span>Total:</span><span><strong style="color: blue;">Rp <?= number_format($transaction['total_payment'], 2) ?></strong></span></div>
-            <div><span>Metode Pembayaran:</span><span><?= htmlspecialchars(string: $transaction['payment_with']) ?></span></div>
-        </div>
+    <div><span>Sub Total:</span><span>Rp <?= number_format($transaction['total_payment'], 3, ',', '.') ?></span></div>
+    <div><span>Total:</span><span><strong style="color: blue;">Rp <?= number_format($transaction['total_payment'], 3, ',', '.') ?></strong></span></div>
+
+    <?php if ($transaction['payment_with'] === 'Cash') : ?>
+        <div><span>Cash Paid:</span><span>Rp <?= number_format($cashAmount, 3, ',', '.') ?></span></div>
+        <div><span>Change:</span><span>Rp <?= number_format($changeAmount, 3, ',', '.') ?></span></div>
+    <?php endif; ?>
+
+    <div><span>Metode Pembayaran:</span><span><?= htmlspecialchars($transaction['payment_with']) ?></span></div>
+</div>
+
 
 
         <hr>

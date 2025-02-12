@@ -9,29 +9,30 @@ if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
-// Cek apakah session id_user tersedia
-$id_user = $_SESSION['id_user'] ?? null;
-if ($id_user) {
-    // Hindari SQL Injection dengan prepared statement
-    $stmt = $conn->prepare("SELECT nama_lengkap, username FROM user WHERE id_user = ?");
-    $stmt->bind_param("i", $id_user);
-    $stmt->execute();
-    $userResult = $stmt->get_result();
-
-    if ($userResult && $userResult->num_rows > 0) {
-        $row = $userResult->fetch_assoc();
-        $nama_lengkap = $row['nama_lengkap'];
-        $username = $row['username'];
-    } else {
-        $nama_lengkap = "Guest";
-        $username = "Not available";
-    }
-
-    $stmt->close();
-} else {
-    $nama_lengkap = "Guest";
-    $username = "Not available";
+// Pastikan session id_user ada sebelum mengaksesnya
+if (!isset($_SESSION['id_user'])) {
+  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
+  exit(); // Hentikan eksekusi script
 }
+
+// Ambil id_user dari session
+$id_user = $_SESSION['id_user'];
+
+// Query untuk mengambil data pengguna berdasarkan id_user
+$sql = "SELECT id_user, username, nama_lengkap, id_level FROM user WHERE id_user = '$id_user'";
+$result = $conn->query($sql);
+
+// Jika query gagal atau tidak ada hasil, tampilkan error dan redirect
+if (!$result || $result->num_rows == 0) {
+  echo "<script>alert('Error: Id User tidak ditemukan!'); window.location.href='../login.php';</script>";
+  exit();
+}
+
+// Ambil data pengguna
+$row = $result->fetch_assoc();
+$nama_lengkap = $row['nama_lengkap'];
+$username = $row['username'];
+$id_level = $row['id_level'];
 
 // Query untuk mengambil data transaksi
 $query = "SELECT DISTINCT id_transaksi, id_order, date, user_role, payment_with, total_payment, status_order 
@@ -789,7 +790,7 @@ if (!$transactionResult) {
                     >
                       <div class="avatar-sm">
                         <img
-                         src="../assets/img/profile/1.png"
+                         src="../assets/img/profile/jane.png"
                           alt="..."
                           class="avatar-img rounded-circle"
                         />
@@ -805,7 +806,7 @@ if (!$transactionResult) {
                           <div class="user-box">
                             <div class="avatar-lg">
                               <img
-                                   src="../assets/img/profile/1.png"
+                                   src="../assets/img/profile/jane.png"
                                 alt="image profile"
                                 class="avatar-img rounded"
                               />

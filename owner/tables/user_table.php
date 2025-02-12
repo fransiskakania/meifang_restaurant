@@ -717,9 +717,9 @@ if ($result && $result->num_rows > 0) {
                       href="#"
                       aria-expanded="false"
                     >
-                      <div class="avatar-sm">
+                    <div class="avatar-sm">
                         <img
-                          src="../assets/img/profile/1.png"
+                          src="../assets/img/profile/jane.png"
                           alt="..."
                           class="avatar-img rounded-circle"
                         />
