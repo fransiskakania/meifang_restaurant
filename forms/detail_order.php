@@ -2,10 +2,28 @@
 session_start();
 include 'koneksi.php'; // Include your database connection file
 
-// Pastikan session id_user ada sebelum mengaksesnya
+// Ensure session id_user exists before accessing it
 if (!isset($_SESSION['id_user'])) {
-  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
-  exit(); // Hentikan eksekusi script
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Access Denied!',
+                  text: 'You are not logged in. Please log in first.',
+              }).then(function() {
+                  window.location.href = '../login.php';
+              });
+          });
+      </script>";
+  exit(); // Stop script execution
 }
 
 // Ambil id_user dari session
@@ -1005,11 +1023,22 @@ if (isset($_GET['status'])) {
             }
         });
     </script>
-   <script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
 function deleteOrder() {
-    if (confirm("Are you sure you want to delete all orders? This action cannot be undone.")) {
-        window.location.href = "delete_orders.php";
-    }
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "delete_orders.php";
+        }
+    });
 }
 </script>
 <script>

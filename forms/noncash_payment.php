@@ -61,13 +61,6 @@ if ($id_order) {
         $currentTime = new DateTime();
 
         // Periksa apakah pembayaran melewati deadline
-        if ($currentTime > $deadline && $row['status_order'] != 'canceled') {
-            // Update status_order menjadi 'canceled'
-            $update_query = "UPDATE transaksi SET status_order = 'canceled' WHERE id_order = ?";
-            $update_stmt = $conn->prepare($update_query);
-            $update_stmt->bind_param("i", $id_order);
-            $update_stmt->execute();
-        }
     }
 }
 
@@ -236,7 +229,7 @@ if ($id_order) {
                 <p class="mb-1 mt-3">Total Tagihan</p>
                 <h4 class="bold d-flex align-items-center justify-content-between">
                     <span class="total-payment">
-                    <strong id="totalPayment">Rp <?php echo number_format($totalPayment, 0, ',', '.'); ?></strong>
+                    <strong id="totalPayment">Rp <?php echo number_format($totalPayment, 3, ',', '.'); ?></strong>
                     <a href="#" class="copy-icon" onclick="copyText('totalPayment')">
                             <i class="far fa-copy"></i>
                             <span class="tooltip">Salin</span>

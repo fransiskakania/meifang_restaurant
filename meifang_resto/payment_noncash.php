@@ -1,4 +1,18 @@
 <?php
+// Start the session to retrieve totalPayment if using session
+session_start();
+
+// Initialize $totalPayment variable
+$totalPayment = 0;
+
+// Retrieve totalPayment from session or GET parameter
+if (isset($_SESSION['totalPayment'])) {
+    $totalPayment = $_SESSION['totalPayment'];
+} elseif (isset($_GET['totalPayment'])) { // Alternatively, using GET parameter
+    $totalPayment = (float) $_GET['totalPayment'];
+}
+
+// Database connection (assumed connection variable $conn is already established)
 include 'koneksi.php';
 
 // Dapatkan waktu sekarang dan atur zona waktu
@@ -11,13 +25,54 @@ $deadline->modify('+15 minutes'); // Memajukan deadline 15 menit
 // Format bagian tanggal dan waktu untuk $dayDate dan $yearTime
 $dayDate = $deadline->format('l, d F'); // Format hari, tanggal, dan bulan
 $yearTime = $deadline->format('Y, H:i'); // Format tahun dan waktu
-if (isset($_GET['id_order']) && isset($_GET['total_payment'])) {
-    $id_order = $_GET['id_order'];
-    $total_payment = $_GET['total_payment'];
-} else {
-    echo "<script>alert('Data pembayaran tidak valid.'); window.location.href='index.php';</script>";
-    exit;
+
+$id_order = isset($_GET['id_order']) ? htmlspecialchars($_GET['id_order']) : null;
+
+if ($id_order) {
+    // Fetch payment method from the database based on id_order
+    $query = "SELECT payment_with FROM transaksi WHERE id_order = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $id_order);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $payment_with = $row['payment_with'];
+
+        // Simpan deadline ke database
+        $update_query = "UPDATE transaksi SET deadline = ? WHERE id_order = ?";
+        $update_stmt = $conn->prepare($update_query);
+        $deadlineFormatted = $deadline->format('Y-m-d H:i:s');
+        $update_stmt->bind_param("si", $deadlineFormatted, $id_order);
+        $update_stmt->execute();
+    }
+
+    // Ambil deadline dari tabel transaksi
+    $query = "SELECT deadline, status_order FROM transaksi WHERE id_order = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $id_order);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $deadline = new DateTime($row['deadline']);
+        $currentTime = new DateTime();
+
+        // Periksa apakah pembayaran melewati deadline
+    }
 }
+if (isset($_GET['id_order']) && isset($_GET['total_payment']) && isset($_GET['payment_with'])) {
+    $id_order = (int)$_GET['id_order'];
+    $total_payment = $_GET['total_payment'];
+    $payment_with = $_GET['payment_with'];
+} else {
+    // Jika id_order tidak ditemukan, redireksi ke halaman lain atau tampilkan error
+    echo "<script>alert('Data pembayaran tidak valid'); window.location.href='order_menu.php';</script>";
+    exit();
+}
+
 ?>
 
 <!DOCTYPE html>

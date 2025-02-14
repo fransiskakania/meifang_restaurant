@@ -153,10 +153,7 @@ if ($id_user) {
 // Fungsi untuk memuat isi keranjang dari localStorage
 function loadCart() { 
     let cartData = localStorage.getItem("cart");
-    console.log("Data cart dari localStorage:", cartData); // Debugging
-
     let cart = JSON.parse(cartData) || [];
-    console.log("Parsed cart:", cart); // Debugging
 
     let cartBody = document.getElementById("cart-body");
     let totalItems = 0;
@@ -197,52 +194,48 @@ function loadCart() {
         `;
     });
 
-    // Update Order Summary
+    // Update total items dan total harga
     document.getElementById("total-items").innerText = totalItems;
     document.getElementById("total-cost").innerText = "Rp " + totalPrice.toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
-
-    // Simpan data keranjang ke dalam form sebelum submit
-    document.getElementById("cart_data").value = JSON.stringify(cart.map(item => ({
-        ...item,
-        harga: parseFloat(item.harga).toFixed(3) // Pastikan harga tetap memiliki dua desimal
-    })));
 }
 
 
 
 function changeCartQuantity(id, amount) {
-    fetch(`get_stock.php?id_masakan=${id}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
-                return;
-            }
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let itemIndex = cart.findIndex(item => item.id === id);
 
-            let stock = data.stock; // Stok dari database
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            let item = cart.find(item => item.id === id);
+    if (itemIndex !== -1) {
+        let newQty = cart[itemIndex].qty + amount;
 
-            if (!item) return;
+        if (newQty < 1) {
+            cart.splice(itemIndex, 1); // Hapus item jika qty menjadi 0
+        } else {
+            cart[itemIndex].qty = newQty;
+        }
 
-            let newQty = item.qty + amount;
-
-            if (newQty < 1) {
-                removeFromCart(id);
-                return;
-            }
-
-            if (newQty > stock) {
-                alert("Stok tidak mencukupi!");
-                return;
-            }
-
-            item.qty = newQty;
-            localStorage.setItem("cart", JSON.stringify(cart));
-            loadCart();
-        })
-        .catch(error => console.error("Error fetching stock:", error));
+        localStorage.setItem("cart", JSON.stringify(cart));
+        loadCart(); // Perbarui tampilan keranjang
+    }
 }
+document.querySelector("form").addEventListener("submit", function(event) {
+    let cart = localStorage.getItem("cart");
+
+    if (!cart || cart === "[]") {
+        event.preventDefault(); // Mencegah submit jika cart kosong
+        Swal.fire({
+            icon: 'warning',
+            title: 'Your cart is empty!',
+            text: 'Please add items before placing an order.',
+            confirmButtonColor: '#f39c12'
+        });
+        return;
+    }
+
+    document.getElementById("cart_data").value = cart;
+});
+
+
 function showStock(id) {
     fetch(`get_stock.php?id_masakan=${id}`)
         .then(response => response.text())

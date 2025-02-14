@@ -9,10 +9,28 @@ if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
-// Pastikan session id_user ada sebelum mengaksesnya
+// Ensure session id_user exists before accessing it
 if (!isset($_SESSION['id_user'])) {
-  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
-  exit(); // Hentikan eksekusi script
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Access Denied!',
+                  text: 'You are not logged in. Please log in first.',
+              }).then(function() {
+                  window.location.href = '../login.php';
+              });
+          });
+      </script>";
+  exit(); // Stop script execution
 }
 
 // Ambil id_user dari session
@@ -77,11 +95,13 @@ if (!$totalDigitalPaymentResult) {
     die("Query gagal: " . mysqli_error($conn));
 }
 
-// Ambil hasil total pembayaran digital
-$row = mysqli_fetch_assoc($totalDigitalPaymentResult);
-$total_digital_payment = $row['total_digital_payment'] ? $row['total_digital_payment'] : 0; // Jika null, anggap 0
-
-
+// Query to calculate total income
+$incomeQuery = "SELECT SUM(total_payment) AS total_income FROM transaksi";
+$incomeResult = mysqli_query($conn, $incomeQuery);
+$income = 0;
+if ($incomeResult && $row = mysqli_fetch_assoc($incomeResult)) {
+    $income = $row['total_income'];
+}
 
 // Jangan tutup koneksi sebelum mengambil semua data
 ?>
@@ -849,15 +869,22 @@ $total_digital_payment = $row['total_digital_payment'] ? $row['total_digital_pay
 <!-- Saldo Digital Payment -->
 <div class="tab-pane fade show active p-3" id="saldo-tab-pane" role="tabpanel" aria-labelledby="saldo-tab">
   <div class="row d-flex justify-content-between align-items-center">
-    <div class="col-lg-8 col-12 col-md-8" >
-      <b class="fs-9">Total Digital Payment</b>
-      <h4 class="text-danger"><b>Rp <?php echo number_format($total_digital_payment, 3, ',', '.'); ?></b></h4>
+  <div class="d-flex justify-content-between align-items-center col-lg-8 col-12 col-md-8">
+    <div>
+        <b class="fs-9">Total Payment</b>
+        <h4 class="text-danger"><b>Rp <?php echo number_format($income, 3, ',', '.'); ?></b></h4>
     </div>
+</div>
+
+
+
 
     <div class="col-lg-4 col-12 text-end">
       <button class="btn btn-primary px-4" data-bs-toggle="modal" data-bs-target="#topupModal">
         <b>Payment</b>
       </button>
+      <button class="btn btn-warning" onclick="window.location.href='check_deadline.php'">Cek Status</button>
+
     </div>
   <!-- Payment History -->
   <?php
@@ -882,15 +909,16 @@ $totalPages = ceil($totalRows / $rowsPerPage);
 // Query to fetch the data for the current page
 $sql = "SELECT 
             id_order, 
-            MAX(date) AS date, 
+            MAX(deadline) AS date, 
             total_payment, 
             payment_with, 
             status_order 
         FROM transaksi 
         WHERE status_order = 'pending' 
         GROUP BY id_order 
-        ORDER BY MAX(date) DESC 
+        ORDER BY MAX(deadline) DESC 
         LIMIT $start, $rowsPerPage";
+
 
 $result = $conn->query($sql);
 ?>
@@ -917,9 +945,9 @@ if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         echo "<tr>
                 <td>" . $currentNumber++ . "</td> <!-- Increment the counter -->
-                <td>" . date('d F Y, H:i', strtotime($row['date'])) . "</td>
+<td>" . date('d F Y, H:i:s', strtotime($row['date'])) . "</td>
                 <td>" . htmlspecialchars($row['id_order']) . "</td>
-                <td>Rp " . number_format($row['total_payment'], 3 , ',', '.') . "</td>
+                <td>Rp " . number_format($row['total_payment'], 3, ',', '.') . "</td>
                 <td>" . htmlspecialchars($row['payment_with']) . "</td>
                 <td><span class='status " . strtolower($row['status_order']) . "'>" . ucfirst(htmlspecialchars($row['status_order'])) . "</span></td>
               </tr>";
@@ -996,7 +1024,7 @@ if ($result && $result->num_rows > 0) {
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="topupModalLabel">Top-up Saldo</h5>
+        <h5 class="modal-title" id="topupModalLabel">Payment</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="process_topup.php" method="POST">
@@ -1053,35 +1081,37 @@ if ($result && $result->num_rows > 0) {
     <!-- Status Pembayaran Cards -->
     <div id="status-payment-container">
     <?php
-    // Query to get unique id_order from transaksi table
-    $statusQuery = "SELECT 
-        id_order, 
-        MAX(date) AS date, 
-        payment_with, 
-        SUM(total_payment) AS total_payment, 
-        status_order 
-    FROM transaksi 
-    GROUP BY id_order, status_order 
-    ORDER BY MAX(date) DESC";
+       // Query to get unique id_order from transaksi table
+       $statusQuery = "SELECT 
+       id_order, 
+       MAX(date) AS date, 
+       payment_with, 
+       SUM(total_payment) AS total_payment, 
+       status_order, 
+       deadline
+   FROM transaksi 
+   GROUP BY id_order, status_order 
+   ORDER BY MAX(date) DESC";
+
 
     $statusResult = $conn->query($statusQuery);
 
     if ($statusResult && $statusResult->num_rows > 0) {
-        while ($row = $statusResult->fetch_assoc()) {
-            $statusClass = strtolower($row['status_order']); // Convert status to lowercase for CSS class
-            $id_order = strtolower($row['id_order']); // Convert status to lowercase for CSS class
-            $statusLabel = ucfirst($row['status_order']); // Capitalize the status
-            $formattedDate = date('d M Y, H:i', strtotime($row['date']));
-            
-            // Calculate due date only if status is not pending
-            $dueDate = '';
-            if (strtolower($row['status_order']) !== 'success') {
-                $dueDate = date('d M, H:i', strtotime('+1 day', strtotime($row['date']))); 
-            }
+      while ($row = $statusResult->fetch_assoc()) {
+          $statusClass = strtolower($row['status_order']); // Convert status to lowercase for CSS class
+          $id_order = strtolower($row['id_order']); // Convert id_order to lowercase for CSS class
+          $statusLabel = ucfirst($row['status_order']); // Capitalize the status
+          $formattedDate = date('d M Y, H:i', strtotime($row['date']));
+          $formattedDeadline = date('d M Y, H:i', strtotime($row['deadline']));
 
-            $totalPayment = number_format($row['total_payment'], 3, ',', '.');
+          // Calculate due date only if status is not pending
+          $dueDate = '';
+          if (strtolower($row['status_order']) !== 'success') {
+              $dueDate = date('d M, H:i', strtotime('+1 day', strtotime($row['date']))); 
+          }
 
-    ?>
+          $totalPayment = number_format($row['total_payment'], 3, ',', '.');
+  ?>
             <div class="card p-3 mb-3 status-card <?php echo $statusClass; ?>">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -1093,7 +1123,7 @@ if ($result && $result->num_rows > 0) {
                             <?php if ($dueDate): ?>
                                 <span class="text">Bayar Sebelum:</span>
                                 <span class="text-warning">
-                                    <b><i class="bi-clock mx-1"></i><?php echo $dueDate; ?></b>
+                                    <b><i class="bi-clock mx-1"></i><?php echo $formattedDeadline; ?></b>
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -1626,6 +1656,38 @@ if ($result && $result->num_rows > 0) {
       $('#change_amount').val(change >= 0 ? change.toFixed(3) : '0.000');
     });
   });
+  document.addEventListener("DOMContentLoaded", function () {
+    const cashInput = document.getElementById("cash_amount");
+    const changeInput = document.getElementById("change_amount");
+    
+    // Fungsi untuk memformat angka dengan pemisah ribuan dan desimal
+    function formatCurrency(value) {
+        let number = parseFloat(value.replace(/\./g, "").replace(",", ".")) || 0;
+        return number.toLocaleString("id-ID").replace(",", ".");
+    }
+
+    // Event listener untuk input cash amount
+    cashInput.addEventListener("input", function (e) {
+        let rawValue = this.value.replace(/\D/g, ""); // Hapus karakter selain angka
+        if (rawValue !== "") {
+            this.value = formatCurrency(rawValue);
+        }
+        calculateChange();
+    });
+
+    // Fungsi untuk menghitung kembalian
+    function calculateChange() {
+        let totalAmount = 50000; // Ganti dengan nilai total belanja dari sistem
+        let cashAmount = parseFloat(cashInput.value.replace(/\./g, "").replace(",", ".")) || 0;
+
+        if (cashAmount >= totalAmount) {
+            let change = cashAmount - totalAmount;
+            changeInput.value = formatCurrency(change.toString());
+        } else {
+            changeInput.value = "0";
+        }
+    }
+});
 </script>
 
   </body>

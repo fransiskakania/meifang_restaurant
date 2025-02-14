@@ -9,10 +9,28 @@ if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
-// Pastikan session id_user ada sebelum mengaksesnya
+// Ensure session id_user exists before accessing it
 if (!isset($_SESSION['id_user'])) {
-  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
-  exit(); // Hentikan eksekusi script
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Access Denied!',
+                  text: 'You are not logged in. Please log in first.',
+              }).then(function() {
+                  window.location.href = '../login.php';
+              });
+          });
+      </script>";
+  exit(); // Stop script execution
 }
 
 // Ambil id_user dari session
@@ -35,14 +53,16 @@ $username = $row['username'];
 $id_level = $row['id_level'];
 
 // Query untuk mengambil data transaksi
-$query = "SELECT DISTINCT id_transaksi, id_order, date, user_role, payment_with, total_payment, status_order 
+$query = "SELECT MAX(id_transaksi) AS id_transaksi, id_order, MAX(date) AS date, user_role, payment_with, MAX(total_payment) AS total_payment, status_order 
           FROM transaksi 
+          GROUP BY id_order, user_role, payment_with, status_order
           ORDER BY id_transaksi DESC";
 $transactionResult = mysqli_query($conn, $query);
 
 if (!$transactionResult) {
     die("Query gagal: " . mysqli_error($conn));
 }
+
 ?>
 
 
@@ -163,6 +183,7 @@ if (!$transactionResult) {
                 font-size: 24px;
             }
         }
+
         
     </style>
       <!-- CSS Files -->
@@ -472,34 +493,33 @@ if (!$transactionResult) {
         <!-- End Sidebar -->
 
         <div class="main-panel">
-          <div class="main-header">
-            <div class="main-header-logo">
-              <!-- Logo Header -->
-              <div class="logo-header" data-background-color="dark">
-                <a href="../index.php" class="logo">
-                  <img
-                    src="../assets/img/kaiadmin/logo_light.svg"
-                    alt="navbar brand"
-                    class="navbar-brand"
-                    height="20"
-                  />
-                </a>
-                <div class="nav-toggle">
-                  <button class="btn btn-toggle toggle-sidebar">
-                    <i class="gg-menu-right"></i>
-                  </button>
-                  <button class="btn btn-toggle sidenav-toggler">
-                    <i class="gg-menu-left"></i>
-                  </button>
-                </div>
-                <button class="topbar-toggler more">
-                  <i class="gg-more-vertical-alt"></i>
+        <div class="main-header">
+          <div class="main-header-logo">
+            <!-- Logo Header -->
+            <div class="logo-header" data-background-color="dark">
+              <a href="../index.php" class="logo">
+                <img
+                  src="../assets/img/kaiadmin/logo_light.svg"
+                  alt="navbar brand"
+                  class="navbar-brand"
+                />
+              </a>
+              <div class="nav-toggle">
+                <button class="btn btn-toggle toggle-sidebar">
+                  <i class="gg-menu-right"></i>
+                </button>
+                <button class="btn btn-toggle sidenav-toggler">
+                  <i class="gg-menu-left"></i>
                 </button>
               </div>
-              <!-- End Logo Header -->
+              <button class="topbar-toggler more">
+                <i class="gg-more-vertical-alt"></i>
+              </button>
             </div>
-            <!-- Navbar Header -->
-            <nav
+            <!-- End Logo Header -->
+          </div>
+          <!-- Navbar Header -->
+          <nav
               class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
               <div class="container-fluid">
                 <nav
@@ -838,81 +858,64 @@ if (!$transactionResult) {
                 </ul>
               </div>
             </nav>
-            <!-- End Navbar -->
-          </div>
-          <div class="container mt-10">
-      <div class="card">
-      <div class="card-header">
-    <div class="row align-items-center">
-        <!-- Title -->
-        <div class="col-md-4 col-12">
-            <h4 class="card-title mb-0">History Transaction</h4>
+          <!-- End Navbar -->
         </div>
-        <!-- Filters -->
-        <div class="col-md-8 col-12 mt-4 mt-md-0">
-            <div class="row g-2">
-                <!-- Status Filter -->
-                <div class="col-md-3 col-12">
-                    <select id="statusFilter" class="form-control" onchange="filterTableByStatus()">
-                        <option value="all">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="success">Success</option>
-                        <option value="canceled">Canceled</option>
-                    </select>
+
+        <div class="container mb-12">
+        <div class="card-header pt-5">
+            <div class="row align-items-center">
+                <div class="col-md-4 col-6">
+              <h4 class="card-title mb-0 fs-5 fs-md-4">History Transaction</h4>
                 </div>
-                <!-- Date Filter -->
-                <div class="col-md-4 col-12">
-                    <input 
-                        type="date" 
-                        id="dateFilter" 
-                        class="form-control" 
-                        placeholder="Filter by Date" 
-                        oninput="filterTableByDate()">
-                </div>
-                <!-- Search and Export -->
-                <div class="col-md-5 col-12">
-                    <div class="d-flex">
-                        <div class="input-group me-4">
-                            <input 
-                                type="text" 
-                                id="searchInput" 
-                                class="form-control" 
-                                placeholder="Search by ID Order" 
-                                onkeyup="searchTable()">
-                            <span class="input-group-text">
-                                <i class="fas fa-search"></i>
-                            </span>
+                <div class="col-md-8 col-12 mt-3 mt-md-0">
+                    <div class="row g-2">
+                        <div class="col-md-3 col-6">
+                            <select id="statusFilter" class="form-control" onchange="filterTableByStatus()">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="success">Success</option>
+                                <option value="canceled">Canceled</option>
+                            </select>
                         </div>
-                        <button class="btn btn-primary" onclick="exportToExcel()">Export</button>
+                        <div class="col-md-4 col-6">
+                            <input type="date" id="dateFilter" class="form-control" oninput="filterTableByDate()">
+                        </div>
+                        <div class="col-md-5 col-12">
+                            <div class="d-flex flex-column flex-md-row">
+                                <div class="input-group me-md-4 mb-2 mb-md-0">
+                                    <input type="text" id="searchInput" class="form-control" placeholder="Search by ID Order" onkeyup="searchTable()">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                </div>
+                                <button class="btn btn-primary" onclick="exportToExcel()">Export</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
             </div>
         </div>
-    </div>
-</div>
-
-
-<div class="card-body">
-        <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
-                <tr>
-                    <th>No</th>
-                    <th>ID Order</th>
-                    <th>Date</th>
-                    <th>User Role</th>
-                    <th>Payment With</th>
-                    <th>Total Payment</th>
-                    <th>Status Order</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="transactionTable">
-            <?php
+        <div class="table-responsive">
+        <div class="card-body">
+                <table class="table table-bordered ">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>No</th>
+                            <th>ID Order</th>
+                            <th>Date</th>
+                            <th>User Role</th>
+                            <th>Payment With</th>
+                            <th>Total Payment</th>
+                            <th>Status Order</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTable">
+                    <?php
 if ($transactionResult->num_rows > 0) {
     $no = 1;
     while ($row = $transactionResult->fetch_assoc()) {
-        $formattedDate = date("d/m/Y", strtotime($row['date']));
+        $formattedDate = date("d M Y, H:i", strtotime($row['date']));
         echo "<tr>";
         echo "<td>" . $no++ . "</td>";
         echo "<td>" . htmlspecialchars($row['id_order']) . "</td>";
@@ -921,11 +924,11 @@ if ($transactionResult->num_rows > 0) {
         echo "<td>" . htmlspecialchars($row['payment_with']) . "</td>";
         echo "<td>" . number_format($row['total_payment'], 3) . "</td>";
         echo "<td><span class='status " . strtolower($row['status_order']) . "'>" . ucfirst(htmlspecialchars($row['status_order'])) . "</span></td>";
-        echo "<td>
-        <button class='btn btn-warning btn-sm d-inline-block mb-2 edit-btn' data-id='" . $row['id_transaksi'] . "' data-toggle='modal' data-target='#editModal'><i class='fas fa-edit'></i></button>
-        <a href='history_delete.php?id=" . $row['id_transaksi'] . "' class='btn btn-danger btn-sm d-inline-block' onclick='return confirm(\"Are you sure?\")'><i class='fas fa-trash'></i></a>
-    </td>";
-    
+         echo "<td class='d-flex justify-start'>
+                <button class='btn btn-warning btn-sm mr-2 edit-btn' data-id='" . $row['id_transaksi'] . "' data-toggle='modal' data-target='#editModal'><i class='fas fa-edit'></i></button>
+                <a href='history_delete.php?id=" . $row['id_transaksi'] . "' class='btn btn-danger btn-sm mr-2 delete-btn'><i class='fas fa-trash'></i></a>
+                <button class='btn btn-info btn-sm info-btn' data-id='" . $row['id_order'] . "' data-toggle='modal' data-target='#infoModal'><i class='fas fa-info-circle'></i></button>
+              </td>";
         echo "</tr>";
     }
 } else {
@@ -933,9 +936,33 @@ if ($transactionResult->num_rows > 0) {
 }
 ?>
 
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- Modal Info Transaksi -->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="infoModalLabel">Transaction Info</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="orderInfo"></div> <!-- Placeholder for order details -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Edit -->
 <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -956,22 +983,18 @@ if ($transactionResult->num_rows > 0) {
                     <div class="form-group">
                         <label for="edit_status_order">Status</label>
                         <select class="form-control" name="status_order" id="edit_status_order">
-                            <option value="success">Success</option>
-                            <option value="pending">Pending</option>
+                            <option value="Success">Success</option>
+                            <option value="Pending">Pending</option>
                             <option value="canceled">Canceled</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-</div>
-
-
-</div>
   </div>
 </div>
 
@@ -1304,6 +1327,9 @@ function filterTableByDate() {
     
 </script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.0/dist/sweetalert2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.0/dist/sweetalert2.all.min.js"></script>
+
 <script>
 $(document).ready(function() {
     // Ketika tombol edit diklik
@@ -1317,10 +1343,12 @@ $(document).ready(function() {
             data: { id: id_transaksi },
             dataType: "json",
             success: function(response) {
-                $("#edit_id_transaksi").val(response.id_transaksi);
-                $("#edit_total_payment").val(response.total_payment);
-                $("#edit_status_order").val(response.status_order);
-            }
+            console.log(response); // Debugging
+            $("#edit_id_transaksi").val(response.id_transaksi);
+            $("#edit_total_payment").val(response.total_payment);
+            $("#edit_status_order").val(response.status_order).change();
+        }
+
         });
     });
 
@@ -1333,13 +1361,67 @@ $(document).ready(function() {
             type: "POST",
             data: $("#editForm").serialize(),
             success: function(response) {
-                alert("Data berhasil diperbarui!");
-                location.reload();
+                // Menggunakan SweetAlert2 untuk menampilkan notifikasi
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Data berhasil diperbarui!',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(function() {
+                    location.reload();
+                });
             }
         });
     });
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent the default anchor behavior
+        
+        const link = this.href; // Get the link for redirection
+        
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to the delete link
+                window.location.href = link;
+            }
+        });
+    });
+});
+</script>
+<script>
+    $(document).ready(function() {
+        // Ketika tombol Info diklik
+        $('.info-btn').on('click', function() {
+            var id_order = $(this).data('id');
+
+            // Ambil data transaksi berdasarkan id_order
+            $.ajax({
+                url: 'get_transaction_info.php', // Script PHP untuk mengambil detail transaksi
+                method: 'GET',
+                data: { id_order: id_order },
+                success: function(response) {
+                    // Tampilkan detail transaksi di dalam modal
+                    $('#orderInfo').html(response);
+                }
+            });
+        });
+    });
+</script>
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 

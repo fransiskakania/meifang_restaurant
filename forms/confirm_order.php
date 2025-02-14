@@ -1,8 +1,10 @@
 <?php
 include 'koneksi.php';
 
+date_default_timezone_set('Asia/Jakarta'); // Set zona waktu ke Jakarta
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $tanggal = $_POST['tanggal'];
+    $tanggal = date("Y-m-d H:i:s"); // Format tanggal dengan waktu
     $user_role = $_POST['user_role'];
     $name = $_POST['name'];
     $no_meja = $_POST['no_meja'];
@@ -17,27 +19,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $highest_deleted_id_order = $row_deleted['highest_deleted_id_order'] ?? null;
 
     // Get the highest id_order for the given date from order_details
-    $query_details = $conn->prepare("SELECT MAX(id_order) AS highest_id_order FROM order_details WHERE tanggal = ?");
+    $query_details = $conn->prepare("SELECT MAX(id_order) AS highest_id_order FROM order_details WHERE DATE(tanggal) = DATE(?)");
     $query_details->bind_param('s', $tanggal);
     $query_details->execute();
     $result_details = $query_details->get_result();
     $row_details = $result_details->fetch_assoc();
 
-$highest_order_details_id = $row_details['highest_id_order'] ?? null;
+    $highest_order_details_id = $row_details['highest_id_order'] ?? null;
 
-// Determine the starting id_order
-if ($highest_deleted_id_order || $highest_order_details_id) {
-    // Compare the highest ids and use the larger one
-    $max_id_order = max($highest_deleted_id_order, $highest_order_details_id);
+    // Determine the starting id_order
+    if ($highest_deleted_id_order || $highest_order_details_id) {
+        // Compare the highest ids and use the larger one
+        $max_id_order = max($highest_deleted_id_order, $highest_order_details_id);
 
-    $last_sequence = substr($max_id_order, -3); // Extract last 3 digits
-    $new_sequence = (int)$last_sequence + 1;    // Increment sequence
-    $new_id_order = date("dmy", strtotime($tanggal)) . str_pad($new_sequence, 3, '0', STR_PAD_LEFT);
-} else {
-    // Start from 001 if no orders exist in both tables
-    $new_id_order = date("dmy", strtotime($tanggal)) . '001';
-}
-
+        $last_sequence = substr($max_id_order, -3); // Extract last 3 digits
+        $new_sequence = (int)$last_sequence + 1;    // Increment sequence
+        $new_id_order = date("dmy", strtotime($tanggal)) . str_pad($new_sequence, 3, '0', STR_PAD_LEFT);
+    } else {
+        // Start from 001 if no orders exist in both tables
+        $new_id_order = date("dmy", strtotime($tanggal)) . '001';
+    }
 
     // Proceed with inserting data into the database or processing orders
     $conn->begin_transaction(); // Start a transaction
@@ -81,7 +82,7 @@ if ($highest_deleted_id_order || $highest_order_details_id) {
                             'sissidssss',
                             $new_id_order,
                             $id_masakan,
-                            $tanggal,
+                            $tanggal, // Sekarang tanggal mencakup jam, menit, dan detik
                             $nama_masakan,
                             $quantity,
                             $price,
@@ -92,10 +93,10 @@ if ($highest_deleted_id_order || $highest_order_details_id) {
                         );
                         $insert_detail->execute();
                     } else {
-                        throw new Exception("Stock not sufficient for $nama_masakan.");
+                        throw new Exception("Stock tidak mencukupi untuk $nama_masakan.");
                     }
                 } else {
-                    throw new Exception("Item not found: $nama_masakan.");
+                    throw new Exception("Item tidak ditemukan: $nama_masakan.");
                 }
             }
 
@@ -106,7 +107,7 @@ if ($highest_deleted_id_order || $highest_order_details_id) {
             header("Location: detail_order.php?status=success");
             exit();
         } else {
-            throw new Exception("No orders to process.");
+            throw new Exception("Tidak ada pesanan untuk diproses.");
         }
     } catch (Exception $e) {
         $conn->rollback(); // Rollback transaction

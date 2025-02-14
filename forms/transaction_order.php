@@ -2,12 +2,29 @@
 session_start();
 include 'koneksi.php'; // Include your database connection file
 
-// Pastikan session id_user ada sebelum mengaksesnya
+// Ensure session id_user exists before accessing it
 if (!isset($_SESSION['id_user'])) {
-  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
-  exit(); // Hentikan eksekusi script
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Access Denied!',
+                  text: 'You are not logged in. Please log in first.',
+              }).then(function() {
+                  window.location.href = '../login.php';
+              });
+          });
+      </script>";
+  exit(); // Stop script execution
 }
-
 // Ambil id_user dari session
 $id_user = $_SESSION['id_user'];
 
@@ -41,11 +58,7 @@ $id_level = $row['id_level'];
         content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
         name="viewport"
       />
-      <link
-        rel="icon"
-        href="../assets/img/meifang_resto_logo/2.svg"
-        type="image/x-icon"
-      />
+      <link rel="icon" href="../assets/img/meifang_resto_logo/2.svg" type="image/x-icon" />
 
       <!-- Fonts and icons -->
       <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
@@ -978,62 +991,69 @@ $id_level = $row['id_level'];
           </div>
           <div class="container mt-15"><div class="card">
           <?php
-                include 'koneksi.php'; // Include your database connection file
+include 'koneksi.php'; // Include your database connection file
 
-                // Check connection
-                if ($conn->connect_error) {
-                    die("Connection failed: " . $conn->connect_error);
-                }
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
-                // SQL query to fetch the most recent order details
-                $sql = "SELECT user_role, tanggal, id_order, name, no_meja 
-                        FROM order_details 
-                        ORDER BY tanggal DESC 
-                        LIMIT 1"; // Limit to the latest order
-                $result = $conn->query($sql);
+// SQL query to fetch the most recent order details
+$sql = "SELECT user_role, tanggal, id_order, name, no_meja 
+        FROM order_details 
+        ORDER BY tanggal DESC 
+        LIMIT 1"; // Limit to the latest order
+$result = $conn->query($sql);
 
-                $user_role = "Unknown"; // Default if no data is found
-                $order_date = "Unknown";
-                $no_meja = "Unknown";
-                $name = "Unknown";
-                $id_order = "Unknown"; // Default if no order found
+$user_role = "Unknown"; // Default if no data is found
+$order_date = "Unknown";
+$no_meja = "Unknown";
+$name = "Unknown";
+$id_order = "Unknown"; // Default if no order found
 
-                if ($result->num_rows > 0) {
-                    $row = $result->fetch_assoc();
-                    $user_role = $row['user_role'];
-                    $order_date = $row['tanggal'];
-                    $no_meja = $row['no_meja'];
-                    $name = $row['name'];
-                    $id_order = $row['id_order'];
-                }
-                ?>  
-    <div class="container mt-5">
-        <div class="order-transaction-wrapper">
-            <div class="order-transaction">
-                <!-- Subheadline -->
-                <div class="text-center">
-                  <h3>Meifang Resto Admin</h3>
-                  <p>Jl. Raya Purwosari No. 158, Pasuruan</p>
-                  <p>Contact: 0822-4707-9268 | Email: meifangresto@gmail.com</p>
-                  <hr>
-                  <div class="d-flex justify-content-between">
-                      <!-- Left-aligned section -->
-                      <div>
-                          <p>
-                              Date: <?php echo date("d-m-Y", strtotime($order_date)); ?> | 
-                              Order ID: <?php echo htmlspecialchars($id_order); ?> | 
-                              Cashier: <?php echo ucfirst($user_role); ?> | 
-                          </p>
-                      </div>
-                      <!-- Right-aligned section -->
-                      <div>
-                          <p>
-                              Table Number: <?php echo htmlspecialchars($no_meja); ?> |
-                              Customer Name: <?php echo htmlspecialchars($name); ?>
-                          </p>
-                      </div>
-                  </div>
-               </div>
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $user_role = $row['user_role'];
+    $order_date = $row['tanggal']; // This now includes date and time
+    $no_meja = $row['no_meja'];
+    $name = $row['name'];
+    $id_order = $row['id_order'];
+}
+
+// Set timezone to Jakarta (WIB)
+
+?>
+<!-- Menampilkan tanggal dan waktu dengan format lengkap -->
+
+   <div class="container mt-5">
+    <div class="order-transaction-wrapper border rounded p-4 shadow-sm bg-white">
+        <div class="order-transaction">
+            <!-- Subheadline -->
+            <div class="text-center mb-3">
+                <h3 class="fw-bold ">Meifang Resto Admin</h3>
+                <p class="text-muted mb-1">Jl. Pantai Boulevard, Jakarta Utara </p>
+                <p class="text-muted">Contact: 0822-4707-9268 | Email: info@meifangresto.com</p>
+                <hr>
+            </div>
+            
+            <!-- Order Details -->
+            <div class="row">
+                <!-- Left-aligned section -->
+                <div class="col-6">
+                    <p class="mb-1"><strong>Date:</strong> <?php echo date("d-m-Y H:i:s", strtotime($order_date)); ?></p>
+                    <p class="mb-1"><strong>Order ID:</strong> <?php echo htmlspecialchars($id_order); ?></p>
+                    <p class="mb-1"><strong>Cashier:</strong> <?php echo ucfirst($user_role); ?></p>
+                </div>
+                
+                <!-- Right-aligned section -->
+                <div class="col-6 text-end">
+                    <p class="mb-1"><strong>Table Number:</strong> <?php echo htmlspecialchars($no_meja); ?></p>
+                    <p class="mb-1"><strong>Customer Name:</strong> <?php echo htmlspecialchars($name); ?></p>
+                </div>
+            </div>
+        </div>
+
+
                 <hr>
 
                 <?php
@@ -1097,6 +1117,7 @@ if ($result->num_rows > 0):
                     <span id="total">Rp<?php echo number_format($subtotal, 3, ',', '.'); ?></span>
                 </div>
                 <hr>
+                
                 <!-- Payment Buttons -->
                 <div class="d-flex flex-wrap justify-content-between mt-2 gap-2">
     <!-- Cancel Payment Button -->
@@ -1385,12 +1406,10 @@ function calculateChange(input) {
 
             } else {
                 console.log('Change is less than 0');
-                document.getElementById('changeAmount').value = "0";
             }
         }
     } else {
         console.log('Non-Cash Payment');
-        document.getElementById('changeAmount').value = "0";
     }
 
     // Format the cash input field dynamically (add thousand separators)
@@ -1409,14 +1428,17 @@ function checkCashAmount() {
         rawTotalPayment.replace('Rp', '').replace(/\./g, '').replace(',', '.')
     ) || 0;
 
-    const cashAmount = parseFloat(document.getElementById('cashAmount').value) || 0;
+    const cashAmount = parseFloat(document.getElementById('cashAmount').value.replace(/,/g, '')) || 0;
 
     // Check if the payment method is 'Cash' and validate cash amount
     const paymentMethod = document.getElementById('paymentMethod').value;
     if (paymentMethod === 'Cash' && cashAmount < totalPayment) {
-        // alert('Insufficient cash amount!');
+        alert('Jumlah uang tunai tidak mencukupi untuk pembayaran!');
+        document.getElementById('cashAmount').value = ''; // Kosongkan input
+        document.getElementById('changeAmount').value = '0'; // Reset kembalian
     }
 }
+
 
 
 
@@ -1459,11 +1481,36 @@ function selectPaymentMethod(method) {
     }
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function cancelPayment() {
-        if (confirm("Are you sure you want to cancel this payment? This action cannot be undone.")) {
-            // Make an AJAX request to cancel the order in the backend
-            const idOrder = <?php echo json_encode($id_order); ?>; // Pass the current order ID
+function deleteOrder() {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "delete_orders.php";
+        }
+    });
+}
+
+function cancelPayment() {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "This action cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, cancel it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const idOrder = <?php echo json_encode($id_order); ?>;
             
             fetch('cancel_order.php', {
                 method: 'POST',
@@ -1475,20 +1522,21 @@ function selectPaymentMethod(method) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert("Payment has been canceled successfully.");
-                    // Optionally reset the UI or redirect the user
-                    window.location.reload(); // Reload the page
+                    Swal.fire("Canceled!", "Payment has been canceled successfully.", "success")
+                        .then(() => window.location.reload());
                 } else {
-                    alert("Failed to cancel payment: " + data.message);
+                    Swal.fire("Error!", "Failed to cancel payment: " + data.message, "error");
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
-                alert("An error occurred while canceling the payment.");
+                Swal.fire("Error!", "An error occurred while canceling the payment.", "error");
             });
         }
-    }
+    });
+}
 </script>
+
 
   </body>
 </html>

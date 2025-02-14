@@ -1,19 +1,16 @@
 <?php
-require 'koneksi.php'; // Pastikan file koneksi database sudah benar
+include 'koneksi2.php';
 
 if (isset($_GET['id_masakan'])) {
-    $id_masakan = intval($_GET['id_masakan']);
+    $id = intval($_GET['id_masakan']);
+    $query = mysqli_query($conn, "SELECT stock_menu FROM masakan WHERE id_masakan = $id");
 
-    $query = "SELECT stock_menu FROM masakan WHERE id_masakan = $id_masakan";
-    $result = mysqli_query($conn, $query);
-
-    if ($result) {
-        $row = mysqli_fetch_assoc($result);
-        echo $row['stock']; // Menampilkan stok langsung dengan echo
+    if ($row = mysqli_fetch_assoc($query)) {
+        echo json_encode(["stock" => intval($row['stock_menu'])]);
     } else {
-        echo "Data tidak ditemukan";
+        echo json_encode(["error" => "Menu tidak ditemukan"]);
     }
 } else {
-    echo "ID tidak diberikan";
+    echo json_encode(["error" => "ID tidak diberikan"]);
 }
 ?>

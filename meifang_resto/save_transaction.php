@@ -1,3 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
+
+    <title>Meifang Restaurant - Process</title>
+</head>
+<body>
+    
+</body>
+</html>
 <?php
 include 'koneksi.php';
 session_start();
@@ -6,8 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_order = $_POST['id_order'];
     $payment_with = $_POST['paymentMethods'];
     $total_payment = floatval(str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['total_payment']));
-    $status_order = ($payment_with === 'Cash') ? 'Pending' : 'Success';
+    $status_order = 'Pending'; // Status tetap "Pending" untuk semua metode pembayaran
 
+    
     // Ambil detail pesanan dari order_details
     $sql = "SELECT * FROM order_details WHERE id_order = ?";
     $stmt = $conn->prepare($sql);
@@ -75,18 +89,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Redirect berdasarkan metode pembayaran
     if ($payment_with === 'Cash') {
-        echo "<script>
-            alert('Pembayaran dapat dilakukan di kasir.');
-  localStorage.removeItem('cart'); // Hapus cart dari localStorage
-            window.location.href = 'payment_cash.php?id_order=$id_order&total_payment=$total_payment&payment_with=$payment_with';
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Cash Payment',
+                    text: 'Payment can be made at the cashier.',
+                }).then(function() {
+                    localStorage.removeItem('cart'); // Remove cart from localStorage
+                    window.location.href = 'payment_cash.php?id_order=$id_order&total_payment=$total_payment&payment_with=$payment_with';
+                });
+            });
         </script>";
-    } else {
-        echo "<script>
-            alert('Pembayaran berhasil diproses.');
-            localStorage.removeItem('cart'); // Hapus cart dari localStorage
-            window.location.href = 'payment_noncash.php?id_order=$id_order&total_payment=$total_payment&payment_with=$payment_with';
+} else {
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Non-Cash Payment',
+                    text: 'Payment is being processed.',
+                }).then(function() {
+                    localStorage.removeItem('cart'); // Remove cart from localStorage
+                    window.location.href = 'payment_noncash.php?id_order=$id_order&total_payment=$total_payment&payment_with=$payment_with';
+                });
+            });
         </script>";
-    }
+}
+
 } else {
     echo "<script>alert('Akses tidak diizinkan.'); window.location.href='order_menu.php';</script>";
 }

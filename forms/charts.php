@@ -8,13 +8,29 @@ include 'koneksi.php';
 if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
-
-// Pastikan session id_user ada sebelum mengaksesnya
+// Ensure session id_user exists before accessing it
 if (!isset($_SESSION['id_user'])) {
-  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
-  exit(); // Hentikan eksekusi script
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Access Denied!',
+                  text: 'You are not logged in. Please log in first.',
+              }).then(function() {
+                  window.location.href = '../login.php';
+              });
+          });
+      </script>";
+  exit(); // Stop script execution
 }
-
 // Ambil id_user dari session
 $id_user = $_SESSION['id_user'];
 
@@ -93,11 +109,14 @@ $previousIncome = $rowPreviousRevenue['income'] ?? 0;
 // Hitung perubahan revenue
 $revenueChange = $previousIncome > 0 ? (($income - $previousIncome) / $previousIncome) * 100 : 100;
 
-// Query untuk Total Orders saat ini
-$queryOrders = "SELECT COUNT(*) AS total_orders FROM transaksi WHERE MONTH(date) = MONTH(CURRENT_DATE())";
-$resultOrders = mysqli_query($conn, $queryOrders);
-$rowOrders = mysqli_fetch_assoc($resultOrders);
-$totalOrders = $rowOrders['total_orders'] ?? 0;
+// Query to count total orders
+$orderQuery = "SELECT COUNT(DISTINCT id_order) AS total_orders FROM transaksi";
+$orderResult = mysqli_query($conn, $orderQuery);
+$totalOrders = 0;
+if ($orderResult && $row = mysqli_fetch_assoc($orderResult)) {
+    $totalOrders = $row['total_orders'];
+}
+
 
 // Query untuk Total Orders bulan sebelumnya
 $queryPreviousOrders = "SELECT COUNT(*) AS total_orders FROM transaksi WHERE MONTH(date) = MONTH(CURRENT_DATE()) - 1";
@@ -818,7 +837,7 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Account Setting</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Logout</a>
+                        <a class="dropdown-item" href="logout.php">Logout</a>
                       </li>
                     </div>
                   </ul>
@@ -875,7 +894,7 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                 ></div>
             </div>
             <div class="d-flex justify-content-between mt-2">
-                <p class="text-muted mb-0">Change</p>
+                <p class="text-muted mb-0">Progress</p>
                 <p class="text-muted mb-0"><?php echo number_format($progress, 2); ?>%</p>
             </div>
         </div>
@@ -887,15 +906,15 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
         <div class="card-body">
             <div class="d-flex justify-content-between">
                 <div>
-                    <h5><b>Month Revenue</b></h5>
+                    <h5><b>Month <br>Revenue</b></h5>
                     <p class="text-muted">Month Revenue</p>
                 </div>
                 <h3 class="text-danger fw-bold">$<?php echo number_format($income); ?></h3>
             </div>
             <?php
-            $targetItems = 500;
-            $progress = ($totalItems / $targetItems) * 100;
-            $progress = $progress > 100 ? 100 : $progress;
+            $targetItems = 1000;
+            $progress = ($totalItems / $targetItems) * 10000;
+            $progress = $progress > 1000 ? 1000 : $progress;
             ?>
             <div class="progress progress-sm">
                 <div
@@ -908,7 +927,7 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                 ></div>
             </div>
             <div class="d-flex justify-content-between mt-2">
-                <p class="text-muted mb-0">Change</p>
+                <p class="text-muted mb-0">Progress</p>
                 <p class="text-muted mb-0"><?php echo number_format($revenueChange); ?>%</p>
             </div>
         </div>
@@ -923,7 +942,7 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                     <h5><b>Item<br> Sales</b></h5>
                     <p class="text-muted">All Item Sales</p>
                 </div>
-                <h3 class="text-success fw-bold">$<?php echo $totalItems; ?></h3>
+                <h3 class="text-success fw-bold"><?php echo $totalItems; ?></h3>
             </div>
             <div class="progress progress-sm">
                 <?php
@@ -941,7 +960,7 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                 ></div>
             </div>
             <div class="d-flex justify-content-between mt-2">
-                <p class="text-muted mb-0">Change</p>
+                <p class="text-muted mb-0">Progress</p>
                 <p class="text-muted mb-0"><?php echo number_format($progress, 3); ?>%</p>
             </div>
         </div>
@@ -956,11 +975,11 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                     <h5><b>New <br> Orders</b></h5>
                     <p class="text-muted">All New Orders</p>
                 </div>
-                <h3 class="text-secondary fw-bold">$<?php echo $totalOrders; ?></h3>
+                <h3 class="text-secondary fw-bold"><?php echo $totalOrders; ?></h3>
             </div>
             <?php
-            $targetItems = 500;
-            $progress = ($totalItems / $targetItems) * 100;
+            $targetItems = 1000;
+            $progress = ($totalItems / $targetItems) * 1000;
             $progress = $progress > 100 ? 100 : $progress;
             ?>
             <div class="progress progress-sm">
@@ -974,7 +993,7 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                 ></div>
             </div>
             <div class="d-flex justify-content-between mt-2">
-                <p class="text-muted mb-0">Change</p>
+                <p class="text-muted mb-0">Progress</p>
                 <p class="text-muted mb-0"><?php echo number_format($orderChange, 2); ?>%</p>
             </div>
         </div>

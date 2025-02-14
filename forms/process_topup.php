@@ -1,10 +1,35 @@
 <?php
 include 'koneksi.php';
 
+// Fungsi untuk menampilkan SweetAlert error dan mengarahkan pengguna
+function showErrorAndExit($message, $redirectUrl) {
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '$message',
+                }).then(function() {
+                    window.location.href = '$redirectUrl';
+                });
+            });
+        </script>";
+    exit();
+}
+
 // Ambil data dari form
 $id_order = $_POST['id_order'] ?? null;
 $price = $_POST['price'] ?? null;
 $cash_amount = $_POST['cash_amount'] ?? null;
+
 
 if ($id_order && $price) {
     // 1. Ambil data transaksi berdasarkan ID Order
@@ -21,7 +46,9 @@ if ($id_order && $price) {
         $price = (float)$price; // Konversi tipe data
 
         if ($payment_with === 'Cash') {
-            if ($cash_amount && $cash_amount >= $total_payment) {
+            if ($cash_amount < $total_payment) {
+                showErrorAndExit('Saldo tidak cukup!', 'javascript:history.back()');
+            } else {
                 $change_amount = $cash_amount - $total_payment;
         
                 $updateStmt = $conn->prepare("UPDATE transaksi SET status_order = 'Success' WHERE id_order = ?");

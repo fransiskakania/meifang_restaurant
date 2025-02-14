@@ -25,25 +25,30 @@ function showErrorAndExit($message, $redirectUrl) {
     exit();
 }
 
-
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch the latest id_order dynamically
+// Fetch the latest id_order dynamicallya
 $sql_latest_order = "SELECT id_order FROM order_details ORDER BY tanggal DESC LIMIT 1";
 $stmt_latest_order = $conn->prepare($sql_latest_order);
 $stmt_latest_order->execute();
 $result_latest_order = $stmt_latest_order->get_result();
 
+
 if ($result_latest_order && $result_latest_order->num_rows > 0) {
     $row = $result_latest_order->fetch_assoc();
     $id_order = $row['id_order'];
 } else {
-    showErrorAndExit("Error: No recent orders found.", "order_menu.php");
+    showErrorAndExit("Error: No recent orders found. Please place an order first.", "index.php#menu");
 }
 $stmt_latest_order->close();
+
+// **Tambahan Validasi**: Jika tidak ada id_order, hentikan proses.
+if (empty($id_order)) {
+    showErrorAndExit("Invalid request! No order ID found.", "index.php#menu");
+}
 
 // Fetch all order details for the latest id_order
 $sql = "SELECT user_role, tanggal, id_order, name, no_meja, nama_masakan, quantity, price, type_order 
@@ -66,7 +71,31 @@ if (empty($order_details)) {
     die("No order details found.");
 }
 
-// Retrieve total_payment from POST or GET
+$totalPayment = isset($_POST['total_payment']) ? $_POST['total_payment'] : (isset($_GET['totalPayment']) ? $_GET['totalPayment'] : 0);
+$totalPayment = (float) str_replace(['Rp', '.', ','], ['', '', '.'], $totalPayment);
+$cashAmount = isset($_POST['cash_amount']) ? $_POST['cash_amount'] : (isset($_GET['cash_amount']) ? $_GET['cash_amount'] : 0);
+$cashAmount = (float) str_replace(['Rp', '.', ','], ['', '', '.'], $cashAmount);
+
+// Pastikan payment method dikirim
+$paymentMethod = isset($_POST['payment_with']) ? strtolower($_POST['payment_with']) : '';
+
+if ($paymentMethod === 'cash') {
+    if ($cashAmount <= 0) {
+        showErrorAndExit("Please enter a valid cash amount.", "transaction_order.php");
+    }
+
+    if ($cashAmount < $totalPayment) {
+        showErrorAndExit("Cash amount is less than the total payment. Please enter the correct amount.", "transaction_order.php");
+    }
+
+    if ($cashAmount >= $totalPayment) {
+        $status_order = "Success";
+        $change = $cashAmount - $totalPayment;
+
+        // Tampilkan alert JavaScript dan redirect ke halaman success
+    }
+}
+
 
 
 // Prepare the SQL insert query
@@ -75,23 +104,16 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql_insert);
 
 // Retrieve additional inputs
-$totalPayment = isset($_POST['total_payment']) ? $_POST['total_payment'] : '0';
-$cashAmount = isset($_POST['cash_amount']) ? $_POST['cash_amount'] : '0';
-$changeAmount = isset($_POST['change_amount']) ? $_POST['change_amount'] : '0';
-$paymentMethod = isset($_POST['payment_with']) ? $_POST['payment_with'] : ''; 
-
-$totalPayment = round((float) str_replace(['Rp', '.', ','], '', $totalPayment), 2);
-$cashAmount = round((float) str_replace(['Rp', '.', ','], '', $cashAmount), 2);
-$changeAmount = round((float) str_replace(['Rp', '.', ','], '', $changeAmount), 2);
-
+$paymentMethod = isset($_POST['payment_with']) ? $_POST['payment_with'] : '';
+$changeAmount = isset($_POST['change_amount']) ? (float)$_POST['change_amount'] : 0.00;
 
 $status_order = (strtolower($paymentMethod) === 'cash') ? "Success" : "Pending";
-
 
 // Check if payment method is "cash" and cash amount is empty
 if (strtolower($paymentMethod) === 'cash' && empty($cashAmount)) {
     showErrorAndExit("Please enter the cash amount", "transaction_order.php"); // Redirect to order menu page with error message
 }
+
 // Bind and execute for each order detail
 foreach ($order_details as $detail) {
     $stmt->bind_param(
@@ -166,6 +188,7 @@ if ($stmt_delete->execute()) {
     echo "Error deleting order details: " . $stmt_delete->error;
     exit();
 }
+
 $stmt_delete->close();
 // Redirect after all orders are processed
 if ($status_order === "Pending") {
@@ -182,7 +205,6 @@ if ($status_order === "Pending") {
     header("Location: cash_payment.php?id_order=" . urlencode($detail['id_order']) . "&totalPayment=" . urlencode($totalPayment));
     exit();
 }
-
 
 $stmt->close();
 $conn->close();

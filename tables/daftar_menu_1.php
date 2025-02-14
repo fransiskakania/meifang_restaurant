@@ -2,13 +2,29 @@
 session_start();
 include 'koneksi2.php'; // Include your database connection file
 
-// Query untuk mengambil nama_lengkap berdasarkan id_user
-// Pastikan session id_user ada sebelum mengaksesnya
+// Ensure session id_user exists before accessing it
 if (!isset($_SESSION['id_user'])) {
-  echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
-  exit(); // Hentikan eksekusi script
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Access Denied!',
+                  text: 'You are not logged in. Please log in first.',
+              }).then(function() {
+                  window.location.href = '../login.php';
+              });
+          });
+      </script>";
+  exit(); // Stop script execution
 }
-
 // Ambil id_user dari session
 $id_user = $_SESSION['id_user'];
 
@@ -61,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // Fetch data for each category
-$maincourses = mysqli_query($conn, "SELECT * FROM masakan WHERE category = 'main_course'");
+$maincourse = mysqli_query($conn, "SELECT * FROM masakan WHERE category = 'main_course'");
 $snacks = mysqli_query($conn, "SELECT * FROM masakan WHERE category = 'snack'");
 $dessert = mysqli_query($conn, "SELECT * FROM masakan WHERE category = 'dessert'");
 // Other categories (if needed)
@@ -903,7 +919,7 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
                             <tbody>
                             <?php
                             $index = 1;
-                            while ($row = mysqli_fetch_assoc($maincourses)) {
+                            while ($row = mysqli_fetch_assoc($maincourse)) {
                                 echo "<tr>";
                                 echo "<td>" . $index++ . "</td>";
                                 echo "<td><img src='uploads/" . $row['image'] . "' width='50'></td>";
@@ -916,17 +932,19 @@ $menus = mysqli_query($conn, "SELECT * FROM masakan");
 
                                 echo "<td>";
                                 echo "<div class='btn-group' role='group'>
-                                    <button type='button' class='btn btn-sm btn-warning' style='margin-right: 3px;' data-toggle='modal' data-target='#updateMenuModal' 
-                                        onclick=\"fillUpdateForm('" . $row['image'] . "', '" . $row['nama_masakan'] . "', '" . $row['harga'] . "', '" . $row['status_masakan'] . "', '" . $row['category'] . "', '" . $row['stock_menu'] . "')\">
-                                        <i class='fas fa-pen'></i>
-                                    </button>
+                                  <button type='button' class='btn btn-sm btn-warning' style='margin-right: 3px;' data-toggle='modal' data-target='#updateMenuModal' 
+                                      onclick=\"fillUpdateForm('" . $row['id_masakan'] . "', '" . $row['image'] . "', '" . $row['nama_masakan'] . "', '" . $row['harga'] . "', '" . $row['status_masakan'] . "', '" . $row['category'] . "', '" . $row['stock_menu'] . "', '" . $row['note'] . "')\">
+                                      <i class='fas fa-pen'></i>
+                                  </button>
+
                                     <button type='button' class='btn btn-sm btn-danger' style='margin-left: 2px;' onclick=\"deleteMenu('" . $row['id_masakan'] . "')\">
                                         <i class='fas fa-times'></i>
                                     </button>
+                                  <button type='button' class='btn btn-sm btn-info' style='margin-left: 4px;' data-toggle='modal' data-target='#viewMenuModal' 
                                     <button type='button' class='btn btn-sm btn-info' style='margin-left: 4px;' data-toggle='modal' data-target='#viewMenuModal' 
-                                        onclick=\"viewMenuDetails('" . $row['image'] . "', '" . $row['nama_masakan'] . "', '" . $row['harga'] . "', '" . $row['status_masakan'] . "', '" . $row['category'] . "', '" . $row['stock_menu'] . "')\">
-                                        <i class='fas fa-eye'></i>
-                                    </button>
+                                      onclick=\"viewMenuDetails('" . $row['id_masakan'] . "', '" . $row['image'] . "', '" . $row['nama_masakan'] . "', '" . $row['harga'] . "', '" . $row['status_masakan'] . "', '" . $row['category'] . "', '" . $row['stock_menu'] . "', '" . $row['note'] . "')\">
+                                      <i class='fas fa-eye'></i>
+                                  </button>
                                 </div>";
                                 echo "</td>";
                                 echo "</tr>";

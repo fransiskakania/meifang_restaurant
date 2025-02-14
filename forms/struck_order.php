@@ -218,7 +218,6 @@ mysqli_close($conn);
         </div>
         <!-- Total Section -->
         <div class="total-section">
-    <div><span>Sub Total:</span><span>Rp <?= number_format($transaction['total_payment'], 3, ',', '.') ?></span></div>
     <div><span>Total:</span><span><strong style="color: blue;">Rp <?= number_format($transaction['total_payment'], 3, ',', '.') ?></strong></span></div>
 
     <?php if ($transaction['payment_with'] === 'Cash') : ?>

@@ -8,7 +8,6 @@ $order_details = $_SESSION['order_details'];
 $totalPayment = $_SESSION['total_payment'];
 $cashAmount = $_SESSION['cash_amount'];
 $changeAmount = $_SESSION['change_amount'];
-date_default_timezone_set('Asia/Jakarta'); // Set timezone to Indonesia (Jakarta)
 
 // Log session data to the browser console
 echo "<script>
@@ -17,6 +16,8 @@ echo "<script>
     console.log('Cash Amount:', " . json_encode($cashAmount) . ");
     console.log('Change Amount:', " . json_encode($changeAmount) . ");
 </script>";
+
+date_default_timezone_set('Asia/Jakarta');
 
 // Clear session after data retrieval
 // unset($_SESSION['id_order'], $_SESSION['order_details'], $_SESSION['total_payment'], $_SESSION['cash_amount'], $_SESSION['change_amount']);
@@ -163,73 +164,86 @@ echo "<script>
         });
     </script>
 
-    <div class="receipt">
-        <!-- Header -->
-        <div class="receipt-header">
-            <img src="https://cdn-icons-png.flaticon.com/512/1533/1533161.png" alt="Shop Logo">
-            <div class="shop-info">Meifang Resto</div>
-            <div>Jl. Dr. Ir. H. Soekarno No.19, Surabaya<br>No. Telp: 0812345678</div>
-        </div>
+<div class="receipt">
+    <!-- Header -->
+    <div class="receipt-header">
+        <img src="https://cdn-icons-png.flaticon.com/512/1533/1533161.png" alt="Shop Logo">
+        <div class="shop-info">Meifang Resto</div>
+        <div>Jl. Pantai Boulevard, Jakarta Utara<br>No. Telp: 0822-4707-9268</div>
+    </div>
 
-        <hr>
+    <hr>
 
-        <!-- Receipt Details -->
-        <div class="receipt-details">
+    <!-- Receipt Details -->
+    <div class="receipt-details">
         <div>
-        <span>Id Order:</span>
-        <?php if (!empty($order_details)): ?>
-            <span><?= htmlspecialchars($order_details[0]['id_order']) ?></span>
-        <?php endif; ?>
-    </div>   
-    <div><span>Date:</span><span><?= date('Y-m-d') ?></span></div>
-    <div><span>Time:</span><span><?= date('H:i:s') ?></span></div>
-    <?php if (!empty($order_details)): ?>
-        <div><span>Cashier:</span><span> <?= htmlspecialchars($order_details[0]['user_role']) ?> </span></div>
-        <div><span>Name:</span><span> <?= htmlspecialchars($order_details[0]['name']) ?> </span></div>
-        <div><span>No Meja:</span><span> <?= htmlspecialchars($order_details[0]['no_meja']) ?> </span></div>
-    <?php endif; ?>
-
+            <span>Id Order:</span>
+            <?php if (!empty($order_details)): ?>
+                <span><?= htmlspecialchars($order_details[0]['id_order']) ?></span>
+            <?php endif; ?>
+        </div>
+        
+        <div>
+            <span>Date:</span>
+            <span>
+                <?php 
+                    echo !empty($order_details) 
+                        ? date("d-m-Y H:i:s", strtotime($order_details[0]['tanggal'])) 
+                        : "No date available";
+                ?>
+            </span>
         </div>
 
-        <hr>
+        <?php if (!empty($order_details)): ?>
+            <div><span>Cashier:</span> <span><?= htmlspecialchars($order_details[0]['user_role']) ?></span></div>
+            <div><span>Name:</span> <span><?= htmlspecialchars($order_details[0]['name']) ?></span></div>
+            <div><span>No Meja:</span> <span><?= htmlspecialchars($order_details[0]['no_meja']) ?></span></div>
+        <?php endif; ?>
+    </div>
 
-        <!-- Items Table -->
-        <div class="receipt-items">
-            <table>
+    <hr>
+
+    <!-- Items Table -->
+    <div class="receipt-items">
+        <table>
+            <thead>
                 <tr>
                     <th>Menu</th>
                     <th>Qty</th>
                     <th>Price</th>
                 </tr>
+            </thead>
+            <tbody>
                 <?php foreach ($order_details as $detail): ?>
-                <tr>
-                    <td><?= htmlspecialchars($detail['nama_masakan']) ?></td>
-                    <td><?= htmlspecialchars($detail['quantity']) ?></td>
-                    <td>Rp <?= number_format($detail['price'], 3) ?></td>
-                </tr>
+                    <tr>
+                        <td><?= htmlspecialchars($detail['nama_masakan']) ?></td>
+                        <td><?= htmlspecialchars($detail['quantity']) ?></td>
+                        <td>Rp <?= number_format($detail['price'], 3) ?></td>
+                    </tr>
                 <?php endforeach; ?>
-            </table>
-        </div>
-
-        <!-- Total Section -->
-        <div class="total-section">
-        <div><span>Sub Total:</span><span>Rp <?= number_format($totalPayment, ) ?></span></div>
-        <div><span>Total:</span><span><strong style="color: blue;">Rp <?= number_format($totalPayment, ) ?></strong></span></div>
-        <div><span>Cash Paid:</span><span>Rp <?= number_format($cashAmount, ) ?></span></div>
-        <div><span>Change:</span><span>Rp <?= number_format($changeAmount, ) ?></span></div>
-
+            </tbody>
+        </table>
     </div>
 
+    <hr>
 
-        <hr>
-
-        <!-- Thank You -->
-        <div class="thank-you">
-            Terima Kasih Telah Berbelanja<br>
-            Link Kritik dan Saran:<br>
-            <a href="./order_menu.php" style="text-decoration: none; color: blue;">e-receipt/S-00D39U-07G344G</a>
-        </div>
+    <!-- Total Section -->
+    <div class="total-section">
+        <div><span>Sub Total:</span> <span>Rp <?= number_format($totalPayment, 3) ?></span></div>
+        <div><span>Total:</span> <span><strong style="color: blue;">Rp <?= number_format($totalPayment, 3) ?></strong></span></div>
+        <div><span>Cash Paid:</span> <span>Rp <?= number_format($cashAmount, 3) ?></span></div>
+        <div><span>Change:</span> <span>Rp <?= number_format($changeAmount, 3) ?></span></div>
     </div>
+
+    <hr>
+
+    <!-- Thank You Section -->
+    <div class="thank-you">
+        Terima Kasih Telah Berbelanja<br>
+        Link Kritik dan Saran:<br>
+        <a href="./order_menu.php" style="text-decoration: none; color: blue;">e-receipt/S-00D39U-07G344G</a>
+    </div>
+</div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Tangkap elemen struk sebagai gambar

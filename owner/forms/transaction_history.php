@@ -907,15 +907,15 @@ if (!$transactionResult) {
                 </tr>
             </thead>
             <tbody id="transactionTable">
-                <?php
-                if ($transactionResult->num_rows > 0) {
-                    $no = 1;
-                    while ($row = $transactionResult->fetch_assoc()) {
-                        $formattedDate = date("d/m/Y", strtotime($row['date']));
-                        echo "<tr>";
-                        echo "<td>" . $no++ . "</td>";
-                        echo "<td>" . htmlspecialchars($row['id_order']) . "</td>";
-                        echo "<td>" . htmlspecialchars($formattedDate) . "</td>";
+            <?php
+if ($transactionResult->num_rows > 0) {
+    $no = 1;
+    while ($row = $transactionResult->fetch_assoc()) {
+        $formattedDate = date("d M Y, H:i", strtotime($row['date']));
+        echo "<tr>";
+        echo "<td>" . $no++ . "</td>";
+        echo "<td>" . htmlspecialchars($row['id_order']) . "</td>";
+        echo "<td>" . htmlspecialchars($formattedDate) . "</td>";
                         echo "<td>" . htmlspecialchars($row['user_role']) . "</td>";
                         echo "<td>" . htmlspecialchars($row['payment_with']) . "</td>";
                         echo "<td>" . number_format($row['total_payment'], 3) . "</td>";

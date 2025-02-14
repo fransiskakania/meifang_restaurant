@@ -2,13 +2,29 @@
 session_start();
 
 include 'koneksi.php';
-
-// Pastikan session id_user ada sebelum mengaksesnya
+// Ensure session id_user exists before accessing it
 if (!isset($_SESSION['id_user'])) {
-    echo "<script>alert('Anda belum login!'); window.location.href='../login.php';</script>";
-    exit(); // Hentikan eksekusi script
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Access Denied!',
+                  text: 'You are not logged in. Please log in first.',
+              }).then(function() {
+                  window.location.href = '../login.php';
+              });
+          });
+      </script>";
+  exit(); // Stop script execution
 }
-
 // Ambil id_user dari session
 $id_user = $_SESSION['id_user'];
 
@@ -821,8 +837,10 @@ $id_level = $row['id_level'];
                             echo "<td>" . htmlspecialchars($row['tipe_user']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['nama_lengkap']) . "</td>";
                             echo "<td>";
-                            echo "<button class='btn btn-warning btn-sm' onclick=\"openEditModal('{$row['id_user']}', '{$row['username']}', '{$row['tipe_user']}', '{$row['nama_lengkap']}')\">Edit</button> ";
-                            echo "<button class='btn btn-danger btn-sm' onclick=\"confirmDelete('{$row['id_user']}')\"><i class='bi bi-trash'></i> Delete</button>";
+                            echo "<button class='btn btn-warning btn-sm' onclick=\"openEditModal('{$row['id_user']}', '{$row['username']}', '{$row['tipe_user']}', '{$row['nama_lengkap']}')\"><i class='fas fa-pen'></i></button> ";
+                      
+
+                            echo "<button class='btn btn-danger btn-sm' onclick=\"confirmDelete('{$row['id_user']}')\"><i class='bi bi-trash'></i>    <i class='fas fa-times'></i></button>                             ";
                             echo "</td>";
                             echo "</tr>";
                         }

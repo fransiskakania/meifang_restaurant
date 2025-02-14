@@ -1,13 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
+
+    <title>Meifang Restaurant - Transaction </title>
+</head>
+<body>
+    
+</body>
+</html>
 <?php
 
 include 'koneksi.php';
 
-if (!isset($_GET['id_order'])) {
-    echo "<script>alert('ID Order tidak ditemukan!'); window.location.href='cart.php';</script>";
-    exit;
+function showErrorAndExit($message, $redirectUrl) {
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '$message',
+                    confirmButtonColor: '#d33'
+                }).then(function() {
+                    window.location.href = '$redirectUrl';
+                });
+            });
+        </script>";
+    exit();
+}
+
+if (!isset($_GET['id_order']) || empty($_GET['id_order'])) {
+    showErrorAndExit('ID Order tidak ditemukan!', 'cart.php');
 }
 
 $id_order = $_GET['id_order'];
+
+// Periksa apakah id_order benar-benar ada di database
+$check_order = $conn->prepare("SELECT COUNT(*) FROM order_details WHERE id_order = ?");
+$check_order->bind_param("s", $id_order);
+$check_order->execute();
+$check_order->bind_result($order_count);
+$check_order->fetch();
+$check_order->close();
+
+if ($order_count == 0) {
+    showErrorAndExit('ID Order tidak valid!', 'cart.php');
+}
 
 // Ambil data pesanan berdasarkan id_order
 $query = $conn->prepare("SELECT * FROM order_details WHERE id_order = ?");
@@ -21,7 +69,9 @@ $query_info->bind_param("s", $id_order);
 $query_info->execute();
 $result_info = $query_info->get_result();
 $order_info = $result_info->fetch_assoc();
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

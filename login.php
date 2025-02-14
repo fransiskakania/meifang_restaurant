@@ -2,6 +2,33 @@
 session_start();
 include 'koneksi.php'; // Include connection file
 
+function showErrorAndExit($message, $redirectUrl) {
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '$message',
+                }).then(function() {
+                    window.location.href = '$redirectUrl';
+                });
+            });
+        </script>";
+    exit();
+}
+
+function checkPassword($inputPassword, $storedPassword) {
+    return password_verify($inputPassword, $storedPassword);
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $conn->real_escape_string($_POST['username']);
     $password = $_POST['password'];
@@ -16,38 +43,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
 
-        // Verify password using password_verify
-        if (password_verify($password, $row['password'])) {
+        // Check if password matches
+        if (checkPassword($password, $row['password'])) {
             $_SESSION['id_user'] = $row['id_user'];
             $_SESSION['tipe_user'] = $row['tipe_user'];
             $_SESSION['id_level'] = $row['id_level'];
-        
+
             // Redirect based on user level
-            if ($row['id_level'] == 2) { // Customer
-                $_SESSION['login_success'] = "Login berhasil, selamat datang!";
-                header("Location: ./meifang_resto/index.php");
-                exit();
-            } elseif ($row['id_level'] == 4) { // Owner
-                $_SESSION['login_success'] = "Login berhasil, selamat datang Owner!";
-                header("Location: ./owner/index.php");
-                exit();
-            } else { // Other user roles (Administrator, Waiter, etc.)
-                $_SESSION['login_success'] = "Login berhasil!";
-                header("Location: index.php");
-                exit();
+            switch ($row['id_level']) {
+                case 2: // Customer
+                    $_SESSION['login_success'] = "Login berhasil, selamat datang!";
+                    header("Location: ./meifang_resto/index.php");
+                    exit();
+                case 4: // Owner
+                    $_SESSION['login_success'] = "Login berhasil, selamat datang Owner!";
+                    header("Location: ./owner/index.php");
+                    exit();
+                case 5: // Kasir
+                    $_SESSION['login_success'] = "Login berhasil, selamat datang Kasir!";
+                    header("Location: ./kasir/index.php");
+                    exit();
+                case 3: // Waiter
+                    $_SESSION['login_success'] = "Login berhasil, selamat datang Waiter!";
+                    header("Location: ./waiter/index.php");
+                    exit();
+                case 1: // Administrator
+                    $_SESSION['login_success'] = "Login berhasil, selamat datang Administrator!";
+                    header("Location: ./index.php");
+                    exit();
+                default:
+                    // Handle unexpected roles
+                    showErrorAndExit('Role is unknown or does not have appropriate access!', './login.php');
             }
         } else {
-            $_SESSION['login_error'] = "Username atau password salah!";
-            header("Location: ./login.php");
-            exit();
+            // Password is incorrect
+            showErrorAndExit('Password does not match the email entered!', './login.php');
         }
     } else {
-        $_SESSION['login_error'] = "Username tidak ditemukan!";
-        header("Location: ./login.php");
-        exit();
+        // Username not found
+        showErrorAndExit('Username not found!', './login.php');
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
