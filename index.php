@@ -1,30 +1,62 @@
 <?php
+
 // Start session
 session_start();
 
 // Check if the user is logged in; if not, redirect to the login page
 if (!isset($_SESSION['id_user'])) {
-    header("Location: ./login.php");
+    header("Location: /meifang_resto_admin/login.php");
     exit();
 }
 
 // Include the database connection
 include 'koneksi.php';
 
+// Function untuk menampilkan error dengan SweetAlert
+function showErrorAndExit($message, $redirectUrl) {
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: '$message',
+              }).then(function() {
+                  window.location.href = '/meifang_resto_admin/login.php';
+              });
+          });
+      </script>";
+  exit();
+}
+
 // Ambil id_user dari session
 $id_user = $_SESSION['id_user'];
 
 // Query untuk mengambil nama_lengkap
-$sql = "SELECT nama_lengkap,username FROM user WHERE id_user = '$id_user'";
+$sql = "SELECT nama_lengkap,username,tipe_user FROM user WHERE id_user = '$id_user'";
 $result = $conn->query($sql);
 
 if ($result && $result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $nama_lengkap = $row['nama_lengkap'];
     $username = $row['username'];
+    $tipe_user = $row['tipe_user'];
+
 } else {
     $nama_lengkap = "Guest";
     $username = "Not avalaible";
+    $tipe_user = "tipe_user";
+
+}
+if ($tipe_user !== "Administrator") {
+  showErrorAndExit("Anda tidak memiliki akses sebagai admin!", "./login.php");
 }
 
 // Query to count the total number of users

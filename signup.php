@@ -199,7 +199,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <select name="tipe_user" id="tipe_user" required>
                 <option value="Administrator">Administrator</option>
                 <option value="Waiter">Waiter</option>
-                <option value="Kasir">Kasir</option>
+                <option value="Cashier">Kasir</option>
             </select>
 
             <!-- Full Name Input -->

@@ -8,30 +8,101 @@ include 'koneksi.php';
 if (!$conn) {
     die("Koneksi database gagal: " . mysqli_connect_error());
 }
+// Ensure session id_user exists before accessing it
+if (!isset($_SESSION['id_user'])) {
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Access Denied!',
+                  text: 'You are not logged in. Please log in first.',
+              }).then(function() {
+                  window.location.href = '../login.php';
+              });
+          });
+      </script>";
+  exit(); // Stop script execution
+}
 
-// Cek apakah session id_user tersedia
-$id_user = $_SESSION['id_user'] ?? null;
-if ($id_user) {
-    // Hindari SQL Injection dengan prepared statement
-    $stmt = $conn->prepare("SELECT nama_lengkap, username FROM user WHERE id_user = ?");
-    $stmt->bind_param("i", $id_user); // 'i' untuk tipe integer
-    $stmt->execute();
-    $userResult = $stmt->get_result();
+// Function untuk menampilkan error dengan SweetAlert
+function showErrorAndExit($message, $redirectUrl) {
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: '$message',
+              }).then(function() {
+                  window.location.href = '/meifang_resto_admin/login.php';
+              });
+          });
+      </script>";
+  exit();
+}
 
-    if ($userResult && $userResult->num_rows > 0) {
-        $row = $userResult->fetch_assoc();
-        $nama_lengkap = $row['nama_lengkap'];
-        $username = $row['username'];
-    } else {
-        $nama_lengkap = "Guest";
-        $username = "Not available";
-    }
 
-    $stmt->close();
+// Periksa apakah sesi id_user tersedia
+if (!isset($_SESSION['id_user'])) {
+  header("Location: ./login.php");
+  exit();
+}
+// Ambil id_user dari session
+$id_user = $_SESSION['id_user'];
+
+// Query untuk mengambil nama_lengkap
+$sql = "SELECT nama_lengkap,username,tipe_user FROM user WHERE id_user = '$id_user'";
+$result = $conn->query($sql);
+
+if ($result && $result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $nama_lengkap = $row['nama_lengkap'];
+    $username = $row['username'];
+    $tipe_user = $row['tipe_user'];
+
 } else {
     $nama_lengkap = "Guest";
-    $username = "Not available";
+    $username = "Not avalaible";
+    $tipe_user = "tipe_user";
+
 }
+if ($tipe_user !== "Owner") {
+  showErrorAndExit("Anda tidak memiliki akses sebagai owner!", "./login.php");
+}
+
+// Ambil id_user dari session
+$id_user = $_SESSION['id_user'];
+
+// Query untuk mengambil data pengguna berdasarkan id_user
+$sql = "SELECT id_user, username, nama_lengkap, id_level FROM user WHERE id_user = '$id_user'";
+$result = $conn->query($sql);
+
+// Jika query gagal atau tidak ada hasil, tampilkan error dan redirect
+if (!$result || $result->num_rows == 0) {
+  echo "<script>alert('Error: Id User tidak ditemukan!'); window.location.href='../login.php';</script>";
+  exit();
+}
+
+// Ambil data pengguna
+$row = $result->fetch_assoc();
+$nama_lengkap = $row['nama_lengkap'];
+$username = $row['username'];
+$id_level = $row['id_level'];
 
 // Query untuk mengambil total pembayaran per bulan
 $query = "
@@ -92,11 +163,14 @@ $previousIncome = $rowPreviousRevenue['income'] ?? 0;
 // Hitung perubahan revenue
 $revenueChange = $previousIncome > 0 ? (($income - $previousIncome) / $previousIncome) * 100 : 100;
 
-// Query untuk Total Orders saat ini
-$queryOrders = "SELECT COUNT(*) AS total_orders FROM transaksi WHERE MONTH(date) = MONTH(CURRENT_DATE())";
-$resultOrders = mysqli_query($conn, $queryOrders);
-$rowOrders = mysqli_fetch_assoc($resultOrders);
-$totalOrders = $rowOrders['total_orders'] ?? 0;
+// Query to count total orders
+$orderQuery = "SELECT COUNT(DISTINCT id_order) AS total_orders FROM transaksi";
+$orderResult = mysqli_query($conn, $orderQuery);
+$totalOrders = 0;
+if ($orderResult && $row = mysqli_fetch_assoc($orderResult)) {
+    $totalOrders = $row['total_orders'];
+}
+
 
 // Query untuk Total Orders bulan sebelumnya
 $queryPreviousOrders = "SELECT COUNT(*) AS total_orders FROM transaksi WHERE MONTH(date) = MONTH(CURRENT_DATE()) - 1";

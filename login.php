@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     exit();
                 case 3: // Waiter
                     $_SESSION['login_success'] = "Login berhasil, selamat datang Waiter!";
-                    header("Location: ./waiter/index.php");
+                    header("Location: ./waiters/index.php");
                     exit();
                 case 1: // Administrator
                     $_SESSION['login_success'] = "Login berhasil, selamat datang Administrator!";
@@ -178,14 +178,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="password" name="password" id="password" placeholder="Password" required style="width: 100%; padding-right: 10px;">
                     <i id="togglePassword" class="fa fa-eye" style="position: absolute; top: 30%; right: 10px; font-size: 18px; color: #555;"></i>
                 </div>
-                <select name="id_level" class="custom-select" required>
+                <!-- <select name="id_level" class="custom-select" required>
                     <option value="" disabled selected>Select User Role</option>
                     <option value="1">Administrator</option>
                     <option value="2">Customer</option>
                     <option value="3">Waiter</option>
                     <option value="4">Owner</option>
                     <option value="5">Kasir</option>
-                </select>
+                </select> -->
                 <button type="submit" class="btn">Login</button>
                 <p class="signup-text">
                     <span style="float: center;">Don't have an account? <a href="./signup.php">Signup</a></span>
