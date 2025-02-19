@@ -403,12 +403,12 @@ $id_level = $row['id_level'];
                     <p>User Login</p>
                   </a>
                 </li>
-                <li class="nav-item  ">
+                <!-- <li class="nav-item  ">
                 <a href="../tables/user_manager.php">
                   <i class="fas fa-users"></i>
                   <p>User Manager</p>
                 </a>
-              </li>
+              </li> -->
                 <li class="nav-section">
                   <span class="sidebar-mini-icon">
                     <i class="fa fa-ellipsis-h"></i>
@@ -1183,7 +1183,7 @@ if ($result->num_rows > 0) {
                       </div>
                       <div class="d-flex justify-content-between total"> 
                           <span>Total Payment</span>
-                          <span id="total">Rp<?php echo number_format($$total_payment , 3, ',', '.'); ?></span>
+                          <span id="total">Rp<?php echo number_format($total_payment , 3, ',', '.'); ?></span>
                       </div>
 
                       <hr>

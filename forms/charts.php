@@ -280,12 +280,12 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                     <p>User Login</p>
                   </a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                 <a href="../tables/user_manager.php">
                   <i class="fas fa-users"></i>
                   <p>User Manager</p>
                 </a>
-              </li>
+              </li> -->
                 <li class="nav-section">
                   <span class="sidebar-mini-icon">
                     <i class="fa fa-ellipsis-h"></i>

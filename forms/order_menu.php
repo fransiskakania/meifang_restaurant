@@ -194,12 +194,12 @@ $id_level = $row['id_level'];
                   <p>User Login</p>
                 </a>
               </li>
-              <li class="nav-item ">
+              <!-- <li class="nav-item ">
                 <a href="../tables/user_manager.php">
                   <i class="fas fa-users"></i>
                   <p>User Manager</p>
                 </a>
-              </li>
+              </li> -->
               <li class="nav-section">
                 <span class="sidebar-mini-icon">
                   <i class="fa fa-ellipsis-h"></i>
@@ -854,13 +854,14 @@ $id_level = $row['id_level'];
             <input type="text" id="searchInput" class="form-control" placeholder="Search menu by name...">
         </div>
         <div class="col-md-4">
-            <select id="priceFilter" class="form-control">
-                <option value="all">All Prices</option>
-                <option value="under-30">Under Rp 30.000</option>
-                <option value="30-50">Rp 30.000 - Rp 50.000</option>
-                <option value="above-50">Above Rp 50.000</option>
-            </select>
-        </div>
+          <select id="priceFilter" class="form-control">
+              <option value="all">All Prices</option>
+              <option value="best-seller">Best Seller</option>   
+              <option value="under-30">Under Rp 30.000</option>
+              <option value="30-50">Rp 30.000 - Rp 50.000</option>
+              <option value="above-50">Above Rp 50.000</option>
+          </select>
+      </div>
     </div>
 </div>
 
@@ -948,17 +949,27 @@ $id_level = $row['id_level'];
                           <option value="empty">Empty</option>
                       </select>
                   </div>
-                  <div class="form-group">
-                      <label for="category">Category</label>
-                      <select class="form-control" id="category" name="category">
-                          <option value="main_course">Main Course</option>
-                          <option value="drink">Non Coffee</option>
-                          <option value="coffentea">Coffee & Tea</option>
-                          <option value="milks">Milks & Smoothies</option>
-                          <option value="snack">Snack</option>
-                          <option value="dessert">Dessert</option>
-                      </select>
-                  </div>
+                                  <div class="form-group">
+                    <label for="category">Category</label>
+                    <select class="form-control" id="category" name="category" onchange="toggleCategoryInput()">
+                        <option value="main_course">Main Course</option>
+                        <option value="drink">Non Coffee</option>
+                        <option value="coffentea">Coffee & Tea</option>
+                        <option value="milks">Milks & Smoothies</option>
+                        <option value="snack">Snack</option>
+                        <option value="dessert">Dessert</option>
+                        <option value="new">+ Add Category</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="newCategoryDiv" style="display: none;">
+                    <label for="newCategory">New Category</label>
+                    <input type="text" class="form-control" id="newCategory" name="newCategory">
+                    <button type="button" class="btn btn-primary mt-2" onclick="saveCategory()">Save</button>
+                </div>
+
+
+               
                   <div class="form-group">
                       <label for="stock_menu">Stock</label>
                       <input type="number" class="form-control" id="stock_menu" name="stock_menu" min="0" title="Please enter a valid number">
@@ -1630,6 +1641,7 @@ function addMenuItem() {
         menuItems.forEach(item => {
             const name = item.querySelector('h4').textContent.toLowerCase();
             const price = parseInt(item.querySelector('p').textContent.replace(/[^\d]/g, ''));
+            const isBestSeller = item.getAttribute('data-bestseller') === 'true';
 
             let isVisible = true;
 
@@ -1645,6 +1657,8 @@ function addMenuItem() {
                 isVisible = false;
             } else if (priceValue === 'above-50' && price <= 50000) {
                 isVisible = false;
+            } else if (priceValue === 'best-seller' && !isBestSeller) {
+                isVisible = false;
             }
 
             // Show or hide item based on filters
@@ -1655,6 +1669,7 @@ function addMenuItem() {
     searchInput.addEventListener('input', filterMenu);
     priceFilter.addEventListener('change', filterMenu);
 </script>
+
 <script>
     function formatPrice(input) {
         let value = input.value.replace(/[^\d]/g, ''); // Remove non-digit characters
@@ -1707,6 +1722,52 @@ function deleteMenu(idMasakan) {
     });
 }
 
+
 </script>
+<script>
+function toggleCategoryInput() {
+    var category = document.getElementById("category").value;
+    var newCategoryDiv = document.getElementById("newCategoryDiv");
+
+    if (category === "new") {
+        newCategoryDiv.style.display = "block";
+    } else {
+        newCategoryDiv.style.display = "none";
+    }
+}
+
+function saveCategory() {
+    var newCategory = document.getElementById("newCategory").value.trim();
+
+    if (newCategory === "") {
+        alert("Please enter a category name.");
+        return;
+    }
+
+    // Kirim data ke server untuk disimpan di database
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "save_category.php", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            alert("Category saved successfully!");
+
+            // Tambahkan kategori baru ke dalam dropdown
+            var categorySelect = document.getElementById("category");
+            var newOption = document.createElement("option");
+            newOption.value = newCategory.toLowerCase().replace(/\s+/g, "_");
+            newOption.textContent = newCategory;
+            categorySelect.insertBefore(newOption, categorySelect.lastElementChild);
+
+            // Reset input field dan sembunyikan form tambah category
+            document.getElementById("newCategory").value = "";
+            document.getElementById("newCategoryDiv").style.display = "none";
+            categorySelect.value = newOption.value;
+        }
+    };
+    xhr.send("category=" + encodeURIComponent(newCategory));
+}
+</script>
+
   </body>
 </html>

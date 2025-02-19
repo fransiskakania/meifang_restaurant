@@ -209,7 +209,25 @@ if (isset($_GET['status'])) {
       
     </head>
     <style>
-  
+   .btn-check:checked + .btn {
+    background-color: #0d6efd !important; /* Warna latar belakang sesuai tema primary */
+    color: white !important; /* Warna teks menjadi putih */
+    border-color: #0d6efd !important; /* Pastikan border mengikuti warna background */
+}
+
+.btn-check:checked + .btn i {
+    color: white !important; /* Warna ikon menjadi putih */
+}
+
+.btn-check + .btn {
+    color: #0d6efd; /* Warna teks default (belum dipilih) */
+}
+
+.btn-check + .btn i {
+    color: #0d6efd; /* Warna ikon default (belum dipilih) */
+}
+
+    </style>
  
   </style>
     <div>
@@ -257,12 +275,12 @@ if (isset($_GET['status'])) {
                     <p>User Login</p>
                   </a>
                 </li>
-                <li class="nav-item  ">
+                <!-- <li class="nav-item  ">
                 <a href="../tables/user_manager.php">
                   <i class="fas fa-users"></i>
                   <p>User Manager</p>
                 </a>
-              </li>
+              </li> -->
                 <li class="nav-section">
                   <span class="sidebar-mini-icon">
                     <i class="fa fa-ellipsis-h"></i>
@@ -898,7 +916,7 @@ if (isset($_GET['status'])) {
     <div class="card">
         <div class="card-body">
             <div id="cItemsContainer" class="d-flex justify-content-center align-items-center flex-wrap">
-                <div class="col-12 col-md-10 col-lg-10">
+                <div class="col-5 col-md- col-lg-10">
                     <!-- Display order details in HTML table -->
                     <div class="order-summary border rounded p-3 bg-light">
                         <h4 class="text-center mb-4">Order Summary</h4>
@@ -940,10 +958,10 @@ if (isset($_GET['status'])) {
                                         </td>
                                         <td class="item-total">Rp <?= number_format($total_harga, 3, ',', '.') ?></td>
                                         <td>
-    <button class="btn btn-danger btn-sm" onclick="deleteOrderItem(<?= $row['id_order'] ?>)">
-        <i class="fas fa-trash"></i>
-    </button>
-</td>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteOrderItem(<?= $row['id_order'] ?>)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
 
                                     </tr>
                                 <?php } ?>
@@ -983,16 +1001,33 @@ if (isset($_GET['status'])) {
                                             <input type="text" class="form-control" id="name" name="name">
                                         </div>
                                         <div class="mb-3">
-                                            <label for="no_meja" class="form-label">No Meja</label>
-                                            <input type="number" class="form-control" id="no_meja" name="no_meja" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="type_order" class="form-label">Type Order</label>
-                                            <select class="form-select" id="type_order" name="type_order">
-                                                <option value="Dine In">Dine In</option>
-                                                <option value="Dine Out">Dine Out</option>
-                                            </select>
-                                        </div>
+                                                  <label for="no_meja" class="form-label">No Meja</label>
+                                                  <select class="form-control" id="no_meja" name="no_meja" required>
+                                                      <option value="" disabled selected>Pilih No Meja</option>
+                                                      <?php 
+                                                      for ($i = 1; $i <= 10; $i++) {
+                                                          echo "<option value='$i'>$i</option>";
+                                                      }
+                                                      ?>
+                                                  </select>
+                                              </div>
+
+                                              <div class="mb-3">
+        <label for="type_order" class="form-label fw-bold">Type Order</label>
+        <div class="d-flex gap-3">
+            <!-- Dine In -->
+            <input type="radio" class="btn-check" name="type_order" id="dine_in" value="Dine In" autocomplete="off" checked>
+            <label class="btn btn-outline-primary p-3 w-100" for="dine_in">
+                <i class="fas fa-utensils"></i> Dine In
+            </label>
+
+            <!-- Dine Out -->
+            <input type="radio" class="btn-check" name="type_order" id="dine_out" value="Dine Out" autocomplete="off">
+            <label class="btn btn-outline-primary p-3 w-100" for="dine_out">
+                <i class="fas fa-box"></i> Dine Out
+            </label>
+        </div>
+    </div>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
