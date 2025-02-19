@@ -110,9 +110,9 @@ $connection->close();
         <!-- Navbar Items -->
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav ml-auto d-flex align-items-center">
-                <li class="nav-item active"><a href="index.php" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="#menu" class="nav-link">Menu</a></li>
-                <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+                <li class="nav-item "><a href="index.php" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="index.php#menu" class="nav-link">Menu</a></li>
+                <li class="nav-item"><a href="index.php#about" class="nav-link">About</a></li>
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" id="moreDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
                     <div class="dropdown-menu" aria-labelledby="moreDropdown">

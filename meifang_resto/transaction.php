@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
 
     <title>Meifang Restaurant - Transaction </title>
+    
 </head>
 <body>
     
@@ -80,7 +83,7 @@ $order_info = $result_info->fetch_assoc();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meifang - Transaction Details</title>
     <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
-
+   
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
  <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -88,176 +91,161 @@ $order_info = $result_info->fetch_assoc();
 <!-- Bootstrap JS (Popper & Bootstrap) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link rel="stylesheet" href="./css/transaction.css">
+<style>
+body {
+    font-family: 'Poppins', sans-serif;
+}
 
+</style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2 class="mb-3">Transaction Details</h2>
-        
-        <div class="row">
-            <!-- Table Transaction Details -->
-            <div class="col-md-8">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Menu Name</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $total_harga = 0;
-                        $no = 1;
-                        while ($row = $result->fetch_assoc()) {
-                            $subtotal = $row['quantity'] * $row['price'];
-                            $total_harga += $subtotal;
-                            echo "<tr>
-                                <td>{$no}</td>
-                                <td>{$row['nama_masakan']}</td>
-                                <td>{$row['quantity']}</td>
-                                <td>Rp " . number_format($row['price'], 3, ',', '.') . "</td>
-                                <td>Rp " . number_format($subtotal, 3, ',', '.') . "</td>
-                            </tr>";
-                            $no++;
-                        }
-                        ?>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th colspan="4" class="text-end">Total</th>
-                            <th>Rp <?php echo number_format($total_harga, 3, ',', '.'); ?></th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+<?php
+include 'koneksi.php'; // Pastikan koneksi sudah terhubung
 
-          <!-- Order Summary -->
+// Ambil data transaksi dari database
+$query = "SELECT nama_masakan, quantity, price, subtotal, tax FROM order_details";
+$result = $conn->query($query);
+
+$total_harga = 0;
+$total_tax = 0;
+$total_payment = 0;
+$no = 1;
+?>
+
+<div class="container mt-5">
+    <h2 class="mb-3">Transaction Details</h2>
+    <div class="row">
+        <!-- Table Transaction Details -->
+        <div class="col-md-8">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Menu Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()) { 
+                        $subtotal = $row['subtotal'];
+                        $tax = $row['tax'];
+                        $total_harga += $subtotal;
+                        $total_tax += $tax;
+                        $total_payment += $subtotal + $tax;
+                    ?>
+                    <tr>
+                        <td><?= $no++; ?></td>
+                        <td><?= htmlspecialchars($row['nama_masakan']); ?></td>
+                        <td><?= htmlspecialchars($row['quantity']); ?></td>
+                        <td>Rp <?= number_format($row['price'], 3, ',', '.'); ?></td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+                
+            </table>
+        </div>
+        
+        <!-- Order Summary -->
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Order Summary</h5>
                 </div>
                 <div class="card-body">
-                <p><strong>Date:</strong> <?php echo htmlspecialchars($order_info['tanggal']); ?></p>
-                    <p><strong>ID Order:</strong> <?php echo htmlspecialchars($id_order); ?></p>
-                    <p><strong>User Role:</strong> <?php echo htmlspecialchars($order_info['user_role']); ?></p>
-                    <p><strong>Name:</strong> <?php echo htmlspecialchars($order_info['name']); ?></p>
-                    <p><strong>No Table:</strong> <?php echo htmlspecialchars($order_info['no_meja']); ?></p>
-                    <p><strong>Type Order:</strong> <?php echo htmlspecialchars($order_info['type_order']); ?></p>
+                    <div class="mb-3">
+                        <p>Date: <?= htmlspecialchars($order_info['tanggal']); ?></p>
+                        <p>ID Order: <?= htmlspecialchars($id_order); ?></p>
+                        <p>User Role: <?= htmlspecialchars($order_info['user_role']); ?></p>
+                        <p>Name: <?= htmlspecialchars($order_info['name']); ?></p>
+                        <p>No Table: <?= htmlspecialchars($order_info['no_meja']); ?></p>
+                        <p>Type Order: <?= htmlspecialchars($order_info['type_order']); ?></p>
+                    </div>
                     <hr>
-                    <h5 class="text-start">Total: Rp <?php echo number_format($total_harga, 3, ',', '.'); ?></h5>
-                    <button type="button" class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#paymentModal">Confirm Payment</button>
+                    <div class="mb-3">
+                        <h6 class="text-start">Subtotal: Rp <?= number_format($total_harga, 3, ',', '.'); ?></h6>
+                        <h6 class="text-start">Tax: Rp <?= number_format($total_tax, 3, ',', '.'); ?></h6>
+                        <h6 class="text-start" style="font-weight: bold;">Total Payment: Rp <?= number_format($total_payment, 3, ',', '.'); ?></h6>                    </div>
+                    <div class="text-center">
+                        <button type="button" class="btn btn-primary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#paymentModal">Confirm Payment</button>
+                        <button id="deletePaymentBtn" class="btn btn-outline-danger w-100 mt-3">Delete Payment</button>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        </div>
-        <button id="deletePaymentBtn" class="btn btn-danger mt-3">Delete Payment</button>
-
-        <!-- Modal Payment -->
-        <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="paymentModalLabel">Payment</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form method="POST" action="save_transaction.php" id="paymentForm">
-                            <input type="hidden" name="id_order" value="<?php echo htmlspecialchars($id_order); ?>">
-                            <input type="hidden" name="payment_with" id="paymentMethod">
-
-                            <div class="container">
-
-                                <!-- Cash Section -->
-                                <div class="payment-category">
+    <!-- Modal Payment -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="save_transaction.php" id="paymentForm">
+                        <input type="hidden" name="id_order" value="<?= htmlspecialchars($id_order); ?>">
+                        <input type="hidden" name="payment_with" id="paymentMethod">
+                        <div class="container">
+                            <div class="payment-category">
                                 <b>Cash</b>
-                                <label class="payment-option  selected d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Cash', this)">
+                                <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Cash')">
                                     <div>
                                         <img src="../assets/img/payment/money.png" alt="Cash">
                                         <span>Cash</span>
                                     </div>
-                                    <input type="radio" id="paymentMethodsCash" name="paymentMethods" value="Cash" checked>
+                                    <input type="radio" name="paymentMethods" value="Cash" checked>
                                 </label>
                             </div>
-
-                                <!-- Transfer Virtual Account -->
-                                <div class="payment-category">
-                                    <b>Transfer Virtual Account</b>
-                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('BCA')">
+                            <div class="payment-category">
+                                <b>Transfer Virtual Account</b>
+                                <?php $banks = ['BCA', 'BRI', 'Mandiri']; foreach ($banks as $bank) { ?>
+                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('<?= $bank; ?>')">
                                         <div>
-                                            <img src="../assets/img/payment/bca.png" alt="BCA">
-                                            <span>BCA</span>
+                                            <img src="../assets/img/payment/<?= strtolower($bank); ?>.png" alt="<?= $bank; ?>">
+                                            <span><?= $bank; ?></span>
                                         </div>
-                                        <input type="radio" id="paymentMethodsBCA" name="paymentMethods" value="BCA">
+                                        <input type="radio" name="paymentMethods" value="<?= $bank; ?>">
                                     </label>
-
-                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('BRI')">
-                                        <div>
-                                            <img src="../assets/img/payment/bri.png" alt="BRI">
-                                            <span>BRI</span>
-                                        </div>
-                                        <input type="radio" id="paymentMethodsBRI" name="paymentMethods" value="BRI">
-                                    </label>
-
-                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Mandiri')">
-                                        <div>
-                                            <img src="../assets/img/payment/mandiri.png" alt="Mandiri">
-                                            <span>Mandiri</span>
-                                        </div>
-                                        <input type="radio" id="paymentMethodsMandiri" name="paymentMethods" value="Mandiri">
-                                    </label>
-                                </div>
-
-                                <!-- E-Wallet -->
-                                <div class="payment-category">
-                                    <b>E-Wallet</b>
-                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('Dana')">
-                                        <div>
-                                            <img src="../assets/img/payment/dana.png" alt="Dana">
-                                            <span>Dana</span>
-                                        </div>
-                                        <input type="radio" id="paymentMethodsDana" name="paymentMethods" value="Dana">
-                                    </label>
-
-                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('GoPay')">
-                                        <div>
-                                            <img src="../assets/img/payment/gopay.png" alt="GoPay">
-                                            <span>GoPay</span>
-                                        </div>
-                                        <input type="radio" id="paymentMethodsGoPay" name="paymentMethods" value="GoPay">
-                                    </label>
-
-                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('SeaBank')">
-                                        <div>
-                                            <img src="../assets/img/payment/seabank.png" alt="SeaBank">
-                                            <span>SeaBank</span>
-                                        </div>
-                                        <input type="radio" id="paymentMethodsSeaBank" name="paymentMethods" value="SeaBank">
-                                    </label>
-                                </div>  
-
-                                <!-- Total Payment -->
-                                <div class="mb-4">
-                                    <label class="form-label">Total Payment (Rp)</label>
-                                    <input type="text" class="form-control" id="TotalPayment" name="total_payment" value="Rp<?php echo number_format($total_harga, 3, ',', '.'); ?>" readonly>
-                                </div>
-
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-primary">Submit Payment</button>
-                                </div>
+                                <?php } ?>
                             </div>
-                        </form>
-                    </div>
+                            <div class="payment-category">
+                                <b>E-Wallet</b>
+                                <?php $ewallets = ['Dana', 'GoPay', 'SeaBank']; foreach ($ewallets as $wallet) { ?>
+                                    <label class="payment-option d-flex justify-content-between align-items-center" onclick="selectPaymentMethod('<?= $wallet; ?>')">
+                                        <div>
+                                            <img src="../assets/img/payment/<?= strtolower($wallet); ?>.png" alt="<?= $wallet; ?>">
+                                            <span><?= $wallet; ?></span>
+                                        </div>
+                                        <input type="radio" name="paymentMethods" value="<?= $wallet; ?>">
+                                    </label>
+                                <?php } ?>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Subtotal</label>
+                                <input type="text" class="form-control" name="total_payment" value="Rp<?= number_format($subtotal, 3, ',', '.'); ?>" readonly>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Tax</label>
+                                <input type="text" class="form-control" name="total_payment" value="Rp<?= number_format($tax, 3, ',', '.'); ?>" readonly>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Total Payment (Rp)</label>
+                                <input type="text" class="form-control" name="total_payment" value="Rp<?= number_format($total_payment, 3, ',', '.'); ?>" readonly>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Submit Payment</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-
     </div>
+</div>
+
     <script>
     function selectPaymentMethod(method) {
         // Set nilai input hidden
@@ -330,8 +318,3 @@ document.getElementById("deletePaymentBtn").addEventListener("click", function()
 
 </html>
 
-<?php
-$query->close();
-$query_info->close();
-$conn->close();
-?>

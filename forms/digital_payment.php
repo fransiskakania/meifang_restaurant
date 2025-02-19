@@ -962,13 +962,13 @@ $sql = "SELECT
             MAX(deadline) AS date, 
             total_payment, 
             payment_with, 
-            status_order 
+            status_order,
+            deadline AS dateline -- Menambahkan kolom dateline
         FROM transaksi 
         WHERE status_order = 'pending' 
         GROUP BY id_order 
         ORDER BY MAX(deadline) DESC 
         LIMIT $start, $rowsPerPage";
-
 
 $result = $conn->query($sql);
 ?>
@@ -1084,7 +1084,7 @@ if ($result && $result->num_rows > 0) {
             <label for="id_order" class="form-label">No Id</label>
             <input type="text" class="form-control" id="id_order" name="id_order" placeholder="Masukkan Nomor Order" required>
           </div>
-
+         
           <!-- Price (diambil otomatis berdasarkan id_order) -->
           <div class="mb-3">
             <label for="price" class="form-label">Price</label>
@@ -1104,8 +1104,8 @@ if ($result && $result->num_rows > 0) {
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-primary">Top-up</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Payment</button>
         </div>
       </form>
     </div>

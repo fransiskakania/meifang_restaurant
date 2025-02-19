@@ -1,67 +1,86 @@
 <?php
-include 'koneksi.php';
+include 'koneksi.php'; // Include database connection
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Tangkap data form
-    $username = $_POST['username'];
-    $tipe_user = $_POST['tipe_user'];
-    $nama_lengkap = $_POST['nama_lengkap'];
-    $password = $_POST['password'];
-
-    // Pemetaan tipe_user ke id_level
-    $role_mapping = [
-        'Administrator' => 1,
-        'Customer' => 2,
-        'Waiter' => 3,
-        'Owner' => 4,
-        'Kasir' => 5,
-    ];
-
-    // Validasi tipe_user
-    if (!array_key_exists($tipe_user, $role_mapping)) {
-        echo "<script>alert('Tipe user tidak valid!'); window.location.href='user_table.php';</script>";
-        exit;
-    }
-
-    $id_level = $role_mapping[$tipe_user];
-
-    // Validasi email
-    if (!filter_var($username, FILTER_VALIDATE_EMAIL)) {
-        echo "<script>alert('Format email tidak valid!'); window.location.href='user_table.php';</script>";
-        exit;
-    }
-
-    // Validasi password
-    if (strlen($password) < 8) {
-        echo "<script>alert('Password harus minimal 8 karakter!'); window.location.href='user_table.php';</script>";
-        exit;
-    }
-
-    // Cek apakah username sudah terdaftar
-    $check_query = $conn->prepare("SELECT * FROM user WHERE username = ?");
-    $check_query->bind_param("s", $username);
-    $check_query->execute();
-    $check_result = $check_query->get_result();
-
-    if ($check_result->num_rows > 0) {
-        echo "<script>alert('Email sudah terdaftar!'); window.location.href='user_table.php';</script>";
-        exit;
-    }
-
-    // Enkripsi password
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-    // Tambahkan data ke database
-    $stmt = $conn->prepare("INSERT INTO user (username, password, nama_lengkap, tipe_user, id_level) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssi", $username, $hashed_password, $nama_lengkap, $tipe_user, $id_level);
-
-    if ($stmt->execute()) {
-        echo "<script>alert('Data berhasil ditambahkan!'); window.location.href='user_table.php';</script>";
-    } else {
-        echo "<script>alert('Error: " . $stmt->error . "'); window.location.href='user_table.php';</script>";
-    }
-
-    $stmt->close();
-    $check_query->close();
+function showErrorAndExit($message, $redirectUrl) {
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '$message',
+                }).then(function() {
+                    window.location.href = '$redirectUrl';
+                });
+            });
+        </script>";
+    exit();
 }
+
+function showSuccessAndRedirect($message, $redirectUrl) {
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: '$message',
+                }).then(function() {
+                    window.location.href = '$redirectUrl';
+                });
+            });
+        </script>";
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Get the id_detail and id_order from GET request
+    $id_detail = $_GET['id_detail'];
+    $id_order = $_GET['id_order'];
+
+    // Check if there are more than one item for the same id_order
+    $check_sql = "SELECT COUNT(*) as count FROM order_details WHERE id_order = ?";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("i", $id_order);
+    $check_stmt->execute();
+    $result = $check_stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    if ($row['count'] > 1) {
+        // If there are more than one item, proceed with the delete
+        $sql = "DELETE FROM order_details WHERE id_detail = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $id_detail);
+
+        if ($stmt->execute()) {
+            // Show success message and redirect to transaction page
+            showSuccessAndRedirect("The item has been deleted.", "transaction_order.php?id_order=$id_order");
+        } else {
+            showErrorAndExit("Error: " . $conn->error, "transaction_order.php?id_order=$id_order");
+        }
+
+        $stmt->close();
+    } else {
+        // If there's only one item, do not delete and show SweetAlert error
+        showErrorAndExit("Order must have at least one item.", "transaction_order.php?id_order=$id_order&error=Order+minimum+1+item");
+    }
+
+    $check_stmt->close();
+}
+
+$conn->close();
 ?>

@@ -12,41 +12,67 @@ if ($conn->connect_error) {
     die("Koneksi gagal: " . $conn->connect_error);
 }
 
+// Fungsi untuk menampilkan alert dengan SweetAlert2
+function showAlert($type, $title, $message, $redirectUrl = null) {
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: '$type',
+                    title: '$title',
+                    text: '$message',
+                }).then(function() {
+                    " . ($redirectUrl ? "window.location.href = '$redirectUrl';" : "") . "
+                });
+            });
+        </script>";
+    exit();
+}
+
 // Periksa apakah form dikirim dengan metode POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Ambil data dari form
     $menuImage = $_FILES['menuImage']['name'];
-    $menuName = $_POST['menuName'];
-    $price = $_POST['price'];
-    $status = $_POST['status'];
-    $category = $_POST['category'];
-    $stock_menu = $_POST['stock_menu'];
-    $note = $_POST['note'];
+    $menuName = mysqli_real_escape_string($conn, $_POST['menuName']);
+    $price = mysqli_real_escape_string($conn, $_POST['price']);
+    $status = mysqli_real_escape_string($conn, $_POST['status']);
+    $category = mysqli_real_escape_string($conn, $_POST['category']);
+    $stock_menu = mysqli_real_escape_string($conn, $_POST['stock_menu']);
+    $note = mysqli_real_escape_string($conn, $_POST['note']);
 
-    // Upload gambar
-    $targetDir = "uploads/";
-    $targetFile = $targetDir . basename($menuImage);
+    // Pastikan ada file yang diunggah sebelum diproses
+    if (!empty($menuImage)) {
+        // Upload gambar
+        $targetDir = "uploads/";
+        $targetFile = $targetDir . basename($menuImage);
 
-    if (move_uploaded_file($_FILES['menuImage']['tmp_name'], $targetFile)) {
-        // Insert data ke tabel masakan
-        $sql = "INSERT INTO masakan (image, nama_masakan, harga, status_masakan, category, stock_menu, note)
-                VALUES ('$menuImage', '$menuName', '$price', '$status', '$category', '$stock_menu', '$note')";
+        if (move_uploaded_file($_FILES['menuImage']['tmp_name'], $targetFile)) {
+            // Masukkan data ke tabel masakan
+            $sql = "INSERT INTO masakan (image, nama_masakan, harga, status_masakan, category, stock_menu, note) 
+                    VALUES ('$menuImage', '$menuName', '$price', '$status', '$category', '$stock_menu', '$note')";
 
-        if ($conn->query($sql) === TRUE) {
-            echo "<script>
-                alert('Item berhasil ditambahkan!');
-                window.location.href = 'order_menu.php'; // Refresh halaman
-            </script>";
+            if ($conn->query($sql) === TRUE) {
+                showAlert('success', 'Success!', 'The item has been added successfully.', 'order_menu.php');
+            } else {
+                showAlert('error', 'Oops...', 'There was an error saving the data.');
+            }
         } else {
-            echo "<script>
-                alert('Terjadi kesalahan saat menyimpan data!');
-            </script>";
+            showAlert('error', 'Oops...', 'There was an error uploading the image.');
         }
     } else {
-        echo "<script>
-            alert('Gagal mengupload gambar!');
-        </script>";
+        showAlert('error', 'Oops...', 'Please upload an image.');
     }
 }
+
+// Tutup koneksi database
+
 
 // Fungsi untuk render menu berdasarkan kategori
 function renderMenuItems($category, $folder, $conn) {

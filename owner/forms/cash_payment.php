@@ -167,7 +167,7 @@ echo "<script>
         <div class="receipt-header">
             <img src="https://cdn-icons-png.flaticon.com/512/1533/1533161.png" alt="Shop Logo">
             <div class="shop-info">Meifang Resto</div>
-            <div>Jl. Dr. Ir. H. Soekarno No.19, Surabaya<br>No. Telp: 0812345678</div>
+            <div>Jl. Dr. Ir. H. Soekarno No.19, Surabaya<br>No. Telp: 62+ 822-4707-9268</div>
         </div>
 
         <hr>

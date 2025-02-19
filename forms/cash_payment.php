@@ -4,8 +4,11 @@ session_start();
 if (!isset($_SESSION['order_details'])) {
     die("No payment data available.");
 }
+
 $order_details = $_SESSION['order_details'];
 $totalPayment = $_SESSION['total_payment'];
+$subtotal = $_SESSION['subtotal'];
+$tax = $_SESSION['tax'];
 $cashAmount = $_SESSION['cash_amount'];
 $changeAmount = $_SESSION['change_amount'];
 
@@ -229,7 +232,8 @@ date_default_timezone_set('Asia/Jakarta');
 
     <!-- Total Section -->
     <div class="total-section">
-        <div><span>Sub Total:</span> <span>Rp <?= number_format($totalPayment, 3) ?></span></div>
+        <div><span>Sub Total:</span> <span>Rp <?= number_format($subtotal, 3) ?></span></div>
+        <div><span>Tax:</span> <span>Rp <?= number_format($tax, 3) ?></span></div>
         <div><span>Total:</span> <span><strong style="color: blue;">Rp <?= number_format($totalPayment, 3) ?></strong></span></div>
         <div><span>Cash Paid:</span> <span>Rp <?= number_format($cashAmount, 3) ?></span></div>
         <div><span>Change:</span> <span>Rp <?= number_format($changeAmount, 3) ?></span></div>

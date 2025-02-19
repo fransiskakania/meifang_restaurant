@@ -16,6 +16,7 @@ $query->bind_param("i", $user_id);
 $query->execute();
 $result = $query->get_result();
 
+
 $bookmarks = [];
 while ($row = $result->fetch_assoc()) {
     $bookmarks[] = $row;
@@ -160,9 +161,9 @@ $connection->close();
                         <p>Price: Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-info btn-sm me-2" onclick="viewDetails(<?= $row['id_masakan'] ?>)">
-                            <i class="fas fa-info-circle"></i>
-                        </button>
+                    <button type="button" class="btn btn-info btn-sm me-2" onclick="viewDetails(<?= $row['id_masakan'] ?>, '<?= $row['category'] ?>')">
+            <i class="fas fa-info-circle"></i>
+        </button>
                         <button type="button" class="btn btn-danger btn-sm" onclick="removeBookmark(<?= $row['id_masakan'] ?>)">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -265,9 +266,26 @@ function removeFromCart(id) {
     localStorage.setItem("cart", JSON.stringify(cart));
     loadCartDropdown(); // Refresh dropdown cart
 }
-    function viewDetails(id) {
-        window.location.href = 'details_menu.php?id=' + id;
+function viewDetails(id, category) {
+    let url = 'details_menu.php?id=' + id; // Default URL
+
+    if (category === 'snack') {
+        url = 'details_menu_snack.php?id=' + id;
+
+    } if (category === 'dessert') {
+        url = 'details_menu_dessert.php?id=' + id;
+        
+    }if (category === 'drink') {
+        url = 'details_menu_drink.php?id=' + id;
+    }if (category === 'coffe') {
+        url = 'details_menu_coffe.php?id=' + id;
+    }else if (category === 'milks') {
+        url = 'details_menu_milks.php?id=' + id;
     }
+
+    window.location.href = url;
+}
+
 </script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

@@ -1652,13 +1652,13 @@ function updateOrderButtonVisibility() {
 function increaseQuantity(button) {
     const card = button.closest('.card');
     if (!card) {
-        console.error('Card tidak ditemukan.');
+        console.error('Card not found.');
         return;
     }
 
     const quantityElement = card.querySelector('#quantity');
     if (!quantityElement) {
-        console.error('Element quantity tidak ditemukan.');
+        console.error('Quantity element not found.');
         return;
     }
 
@@ -1669,14 +1669,21 @@ function increaseQuantity(button) {
         quantity += 1;
         quantityElement.textContent = quantity;
 
-        // Tambahkan green-border jika quantity > 0
+        // Add green-border if quantity > 0
         card.classList.add('green-border');
     } else {
-        alert('Stok tidak mencukupi!');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Insufficient Stock!',
+            text: 'The selected quantity exceeds available stock.',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        });
     }
 
     updateOrderButtonVisibility();
 }
+
 
 function decreaseQuantity(button) {
     const card = button.closest('.card');

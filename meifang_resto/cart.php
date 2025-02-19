@@ -41,7 +41,14 @@ if ($id_user) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <style>
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+</style>
 
 </head>
 <body>
@@ -84,17 +91,24 @@ if ($id_user) {
                     <span>Items</span>
                     <span id="total-items">0</span>
                 </div>
+             
 
-                <div class="mt-3">
-                    <label for="promo-code" class="form-label">Voucer</label>
-                    <input type="text" id="promo-code" class="form-control" placeholder="Enter your code">
-                    <button class="btn btn-danger w-100 mt-2" onclick="applyPromo()">Apply</button>
+                <div class="mt-3 d-flex">
+                    <input type="text" id="promo-code" class="form-control me-2" placeholder="Enter your code">
+                    <button class="btn btn-danger" onclick="applyPromo()">Apply</button>
                 </div>
 
                 <hr>
-
+                <div class="d-flex justify-content-between ">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">Rp. 0</span>
+                </div>
+                <div class="d-flex justify-content-between ">
+                    <span>Tax:</span>
+                    <span id="tax">Rp. 0</span>
+                </div>
                 <div class="d-flex justify-content-between fw-bold">
-                    <span>Total Cost</span>
+                    <span>Total </span>
                     <span id="total-cost">Rp. 0</span>
                 </div>
 
@@ -157,14 +171,17 @@ function loadCart() {
 
     let cartBody = document.getElementById("cart-body");
     let totalItems = 0;
-    let totalPrice = 0;
+    let subtotal = 0;
+    let tax = 5; // Pajak dengan format decimal(10,3)
 
     cartBody.innerHTML = "";
 
     if (cart.length === 0) {
         cartBody.innerHTML = `<tr><td colspan="6" class="text-center">Keranjang Kosong</td></tr>`;
         document.getElementById("total-items").innerText = "0";
-        document.getElementById("total-cost").innerText = "Rp 0.000";
+        document.getElementById("subtotal").innerText = "Rp ";
+        document.getElementById("tax").innerText = "Rp ";
+        document.getElementById("total-cost").innerText = "Rp ";
         return;
     }
 
@@ -172,7 +189,7 @@ function loadCart() {
         let hargaItem = parseFloat(item.harga).toFixed(3);
         let itemTotal = (parseFloat(item.harga) * item.qty).toFixed(3);
         totalItems += item.qty;
-        totalPrice += parseFloat(itemTotal);
+        subtotal += parseFloat(itemTotal);
 
         cartBody.innerHTML += `
             <tr>
@@ -194,10 +211,17 @@ function loadCart() {
         `;
     });
 
-    // Update total items dan total harga
+    // Hitung total biaya (subtotal + pajak)
+    let totalCost = subtotal + tax;
+
+    // Update tampilan total
     document.getElementById("total-items").innerText = totalItems;
-    document.getElementById("total-cost").innerText = "Rp " + totalPrice.toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    document.getElementById("subtotal").innerText = "Rp " + subtotal.toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    document.getElementById("tax").innerText = "Rp " + tax.toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    document.getElementById("total-cost").innerText = "Rp " + totalCost.toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+
 }
+
 
 
 
@@ -273,28 +297,39 @@ function showStock(id) {
     });
 
     document.getElementById("total-items").innerText = totalItems;
-    document.getElementById("total-cost").innerText = "Rp. " + (totalPrice + 5000).toLocaleString();
+    document.getElementById("total-cost").innerText = "Rp. " + (totalPrice ).toLocaleString();
 }
 
 function applyPromo() {
-        let promoCode = document.getElementById("promo-code").value.trim();
-        
-        if (promoCode === "") {
-            Swal.fire({
-                icon: "warning",
-                title: "Oops...",
-                text: "Please enter a voucer code!",
-                confirmButtonColor: "#3085d6" // Tombol biru
-            });
-        } else {
-            Swal.fire({
-                icon: "success",
-                title: "Success!",
-                text: "Voucer applied: " + promoCode,
-                confirmButtonColor: "#3085d6" // Tombol biru
-            });
-        }
+    let promoCode = document.getElementById("promo-code").value.trim();
+    
+    // Ambil nilai total biaya dari elemen yang sudah dihitung sebelumnya
+    let totalCost = parseFloat(document.getElementById("total-cost").innerText.replace("Rp ", "").replace(/\./g, '').trim());
+
+    if (promoCode === "") {
+        Swal.fire({
+            icon: "warning",
+            title: "Oops...",
+            text: "Please enter a voucher code!",
+            confirmButtonColor: "#3085d6" // Tombol biru
+        });
+    } else {
+        // Jika kode promo valid, aplikasikan diskon 2%
+        let discount = totalCost * 0.02; // 2% diskon
+        let discountedTotal = totalCost - discount;
+
+        // Update tampilan dengan harga diskon
+        Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: "Voucher applied: " + promoCode + "\nYou got a 2% discount.",
+            confirmButtonColor: "#3085d6" // Tombol biru
+        });
+
+        // Tampilkan total yang sudah didiskon
+        document.getElementById("total-cost").innerText = "Rp " + discountedTotal.toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
     }
+}
 
 // Panggil fungsi ini setiap kali cart diperbarui
 updateOrderSummary();

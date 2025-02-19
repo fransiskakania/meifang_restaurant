@@ -31,46 +31,66 @@ if (isset($_GET['id_order'])) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Meifang Resto - Detail Orders</title>
-    
     <link rel="icon" href="../meifang_resto/images/meifang_resto_logo/2.svg">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .order-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .order-item {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .total-row {
+            font-size: 1.2rem;
+            font-weight: bold;
+           
+            padding: 15px;
+            border-radius: 8px;
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <h2>Detail Orders</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Menu Name</th>
-                    <th>Quantity</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($menuList as $menu) { ?>
-                <tr>
-                    <td><?= htmlspecialchars($menu['nama_masakan']) ?></td>
-                    <td><?= $menu['quantity'] ?></td>
-                    <td>Rp <?= number_format($menu['price'], 3, ',', '.') ?></td>
-                </tr>
-                <?php } ?>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th colspan="2">Total Pembayaran</th>
-                    <th>Rp <?= number_format($totalPrice, 3, ',', '.') ?></th>
-                </tr>
-            </tfoot>
-        </table>
-        <div class="d-flex justify-content-between">
-            <a href="index.php" class="btn btn-danger">Home</a>
-            <a href="order_pdf.php?id_order=<?= $id_order ?>" class="btn btn-primary">Save data</a>
+    <div class="container order-container">
+        <h2 class="text-center mb-4">Detail Orders</h2>
+        <div class="order-list">
+            <?php foreach ($menuList as $menu) { ?>
+            <div class="order-item d-flex justify-content-between">
+                <div>
+                    <h5 class="mb-1"><?= htmlspecialchars($menu['nama_masakan']) ?></h5>
+                    <small>Quantity: <?= $menu['quantity'] ?></small>
+                </div>
+                <div class="fw-bold">Rp <?= number_format($menu['price'], 3, ',', '.') ?></div>
+            </div>
+            <?php } ?>
+        </div>
+        <div class="total-row mt-3 d-flex justify-content-between">
+    <div>Total Pembayaran:</div>
+    <div class="fw-bold">Rp <?= number_format($totalPrice, 3, ',', '.') ?></div>
+</div>
+
+        <div class="d-flex justify-content-between mt-3">
+            <a href="index.php" class="btn btn-danger"><i class="bi bi-house-door"></i> Home</a>
+            <a href="order_pdf.php?id_order=<?= $id_order ?>" class="btn btn-primary"><i class="bi bi-file-earmark-pdf"></i> Save Data</a>
         </div>
     </div>
 </body>

@@ -285,7 +285,7 @@ $conn->close();
                 </a>
               </li>
               <li class="nav-item">
-            <a href="./forms/charts.php">
+            <a href="./forms/digital_payment.php">
             <i class="fas fa-money-check"></i>
             <p>Payment Method</p>
             </a>

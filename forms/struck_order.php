@@ -11,6 +11,7 @@ if (!$conn) {
 $id_order = $_GET['id_order'] ?? null;
 $cashAmount = $_GET['cash_amount'] ?? 0;
 $changeAmount = $_GET['change_amount'] ?? 0;
+
 if ($id_order) {
     // Ambil data transaksi berdasarkan ID Order
     $stmt = $conn->prepare("SELECT * FROM transaksi WHERE id_order = ?");
@@ -20,6 +21,10 @@ if ($id_order) {
 
     if ($result && $result->num_rows > 0) {
         $transaction = $result->fetch_assoc();
+        // Ambil subtotal dan tax
+        $subtotal = $transaction['subtotal']; // Pastikan kolom ini ada di tabel transaksi
+        $tax = $transaction['tax']; // Pastikan kolom ini ada di tabel transaksi
+
         // Fetch the order details
         $order_stmt = $conn->prepare("SELECT * FROM transaksi WHERE id_order = ?");
         $order_stmt->bind_param("s", $id_order);
@@ -27,6 +32,8 @@ if ($id_order) {
         $order_details = $order_stmt->get_result();
 
         date_default_timezone_set('Asia/Jakarta'); // Set timezone to Indonesia (Jakarta)
+        
+      
     } else {
         echo "<p>Transaksi tidak ditemukan.</p>";
     }
@@ -39,6 +46,7 @@ if ($id_order) {
 // Tutup koneksi database
 mysqli_close($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -180,7 +188,7 @@ mysqli_close($conn);
         <div class="receipt-header">
             <img src="https://cdn-icons-png.flaticon.com/512/1533/1533161.png" alt="Shop Logo">
             <div class="shop-info">Meifang Resto</div>
-            <div> Main Street, City, Country<br>No. Telp: 0812345678</div>
+            <div>  Jl. Pantai Boulevard, Jakarta Utara<br>No. Telp: 62+ 822-4707-9268</div>
         </div>
 
         <hr>
@@ -216,9 +224,13 @@ mysqli_close($conn);
                 <?php endwhile; ?>
             </table>
         </div>
-        <!-- Total Section -->
-        <div class="total-section">
-    <div><span>Total:</span><span><strong style="color: blue;">Rp <?= number_format($transaction['total_payment'], 3, ',', '.') ?></strong></span></div>
+ <!-- Total Section -->
+<div class="total-section">
+
+<div><span>Subtotal:</span><span>Rp <?= number_format($subtotal, 3, ',', '.') ?></span></div>
+<div><span>Tax:</span><span>Rp <?= number_format($tax, 3, ',', '.') ?></span></div>
+    <div><span>Total:</span> <span><strong style="color: blue;">Rp <?= number_format($transaction['total_payment'], 3, ',', '.') ?></strong></span></div>
+
 
     <?php if ($transaction['payment_with'] === 'Cash') : ?>
         <div><span>Cash Paid:</span><span>Rp <?= number_format($cashAmount, 3, ',', '.') ?></span></div>

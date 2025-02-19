@@ -5,6 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $id_masakan = $_POST['id_masakan'];
     $nama_masakan = $_POST['nama_masakan'];
     $harga = $_POST['harga'];  // Ambil harga
+    $category = $_POST['category'];  // Ambil category
 
     $user_id = 1; // Gantilah dengan user yang sedang login
 
@@ -16,7 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo "removed";
     } else {
         // Tambah ke bookmark
-        $connection->query("INSERT INTO bookmark (user_id, id_masakan, nama_masakan, harga) VALUES ($user_id, $id_masakan, '$nama_masakan', $harga)");
+        $connection->query("INSERT INTO bookmark (user_id, id_masakan, nama_masakan, harga, category) 
+                            VALUES ($user_id, $id_masakan, '$nama_masakan', $harga, '$category')");
         echo "added";
     }
 }

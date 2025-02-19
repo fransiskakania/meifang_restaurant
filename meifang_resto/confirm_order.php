@@ -8,7 +8,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $no_meja = $_POST['no_meja'];
     $type_order = $_POST['type_order'];
     $cart_data = json_decode($_POST['cart_data'], true);
-
+    $subtotal = 0;
+    $tax = 5; // Pajak tetap, bisa diubah sesuai kebutuhan
+    
     // Generate id_order
     $query_deleted = $conn->prepare("SELECT MAX(id_order) AS highest_deleted_id_order FROM deleted_orders");
     $query_deleted->execute();
@@ -31,7 +33,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         $new_id_order = date("dmy", strtotime($tanggal)) . '001';
     }
-
+  
+    foreach ($cart_data as $item) {
+        $subtotal += $item['qty'] * $item['harga'];
+    }
+    
+    $totalCost = $subtotal + $tax; // Total keseluruhan
+    
     if (!empty($cart_data)) {
         foreach ($cart_data as $item) {
             $id_masakan = $item['id'];
@@ -39,12 +47,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $quantity = $item['qty'];
             $price = $item['harga'];
 
-            $sql = "INSERT INTO order_details (id_order, tanggal, id_masakan, nama_masakan, quantity, price, user_role, name, no_meja, type_order) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssisdsssss", $new_id_order, $tanggal, $id_masakan, $nama_masakan, $quantity, $price, $user_role, $name, $no_meja, $type_order);
-
+            $sql = "INSERT INTO order_details (id_order, tanggal, id_masakan, nama_masakan, quantity, subtotal, tax, price, user_role, name, no_meja, type_order) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ssisidddssis", $new_id_order, $tanggal, $id_masakan, $nama_masakan, $quantity, $subtotal, $tax, $price, $user_role, $name, $no_meja, $type_order);
+    
             if (!$stmt->execute()) {
                 header("Location: cart.php?status=error&message=" . urlencode($stmt->error));
                 exit;

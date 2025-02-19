@@ -31,8 +31,6 @@ if (!isset($_SESSION['id_user'])) {
       </script>";
   exit(); // Stop script execution
 }
-
-// Function untuk menampilkan error dengan SweetAlert
 function showErrorAndExit($message, $redirectUrl) {
   echo "
       <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
@@ -84,7 +82,6 @@ if ($result && $result->num_rows > 0) {
 if ($tipe_user !== "Owner") {
   showErrorAndExit("Anda tidak memiliki akses sebagai owner!", "./login.php");
 }
-
 // Ambil id_user dari session
 $id_user = $_SESSION['id_user'];
 
@@ -129,15 +126,29 @@ $monthsJSON = json_encode($months);
 $paymentsJSON = json_encode($payments);
 // Ambil total_payment berdasarkan tanggal hari ini
 $dateToday = date('Y-m-d'); // Format tanggal hari ini
-$query = "SELECT SUM(total_payment) AS today_income FROM transaksi WHERE date = '$dateToday'";
-$result = mysqli_query($conn, $query);
 
-if ($result) {
-    $row = mysqli_fetch_assoc($result);
-    $todayIncome = $row['today_income'] ?? 0; // Default ke 0 jika tidak ada transaksi
+// Gunakan prepared statement untuk keamanan
+$query = "SELECT SUM(total_payment) AS today_income FROM transaksi WHERE DATE(date) = ?";
+$stmt = mysqli_prepare($conn, $query);
+
+if ($stmt) {
+    mysqli_stmt_bind_param($stmt, "s", $dateToday);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($row = mysqli_fetch_assoc($result)) {
+        $todayIncome = $row['today_income'] ?? 0; // Default ke 0 jika tidak ada transaksi
+    } else {
+        $todayIncome = 0;
+    }
+
+    mysqli_stmt_close($stmt);
 } else {
     $todayIncome = 0;
 }
+
+echo "Pendapatan hari ini: Rp " . number_format($todayIncome, 3, ',', '.');
+
 // Ambil total nama_masakan dari tabel transaksi
 $query = "SELECT COUNT(nama_masakan) AS total_items FROM transaksi";
 $result = mysqli_query($conn, $query);
@@ -930,7 +941,7 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                     <h4><b>Todays Revenue</b></h4>
                     <p class="text-muted">All Today Revenue</p>
                 </div>
-                <h3 class="text-info fw-bold">$<?php echo number_format($todayIncome, 2); ?></h3>
+                <h3 class="text-info fw-bold">Rp<?php echo number_format($todayIncome, 2); ?></h3>
             </div>
             <div class="progress progress-sm">
                 <?php
@@ -963,8 +974,7 @@ $orderChange = $previousOrders > 0 ? (($totalOrders - $previousOrders) / $previo
                     <h5><b>Month Revenue</b></h5>
                     <p class="text-muted">Month Revenue</p>
                 </div>
-                <h3 class="text-danger fw-bold">$<?php echo number_format($income); ?></h3>
-            </div>
+                <h3 class="text-danger fw-bold">Rp<?php echo number_format($income); ?></h3>            </div>
             <?php
             $targetItems = 500;
             $progress = ($totalItems / $targetItems) * 100;

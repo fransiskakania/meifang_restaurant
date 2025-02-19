@@ -1,6 +1,29 @@
 <?php
 include 'koneksi.php'; // Include database connection
 
+function showErrorAndExit($message, $redirectUrl) {
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '$message',
+                }).then(function() {
+                    window.location.href = '$redirectUrl';
+                });
+            });
+        </script>";
+    exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get the id_detail and id_order from POST request
     $id_detail = $_POST['id_detail'];
@@ -25,23 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: transaction_order.php?id_order=$id_order");
             exit;
         } else {
-            echo "Error: " . $conn->error;
+            showErrorAndExit("Error deleting the item: " . $conn->error, "transaction_order.php?id_order=$id_order");
         }
 
-        $stmt->close();
     } else {
         // If there's only one item, do not delete and show alert
-        echo "
-        <script>
-            alert('Order must have at least one item.');
-            window.location.href = 'transaction_order.php?id_order=$id_order&error=Order+minimum+1+item';
-        </script>
-        ";
+        showErrorAndExit("Order must have at least one item.", "transaction_order.php?id_order=$id_order&error=Order+minimum+1+item");
     }
 
-    $check_stmt->close();
 }
 
 $conn->close();
-?>
+?>>
  

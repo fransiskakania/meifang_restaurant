@@ -227,7 +227,9 @@ if ($id_user) {
                                 <!-- Menu Header (Name and Bookmark Icon) -->
                                 <div class="menu-header d-flex justify-content-between align-items-center mb-2">
                                     <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    <i class="fas fa-bookmark" 
+                                    onclick="bookmarkMenu(<?= $row['id_masakan'] ?>,  '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>, 'main_course')"style="cursor: pointer;">
+                                  </i>
                                     </div>
 
                                 <!-- Price Display -->
@@ -305,8 +307,9 @@ if ($id_user) {
                                 <!-- Menu Header (Name and Bookmark Icon) -->
                                 <div class="menu-header d-flex justify-content-between align-items-center mb-2">
                                     <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
-                                    </div>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>,  '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>, 'snack')"style="cursor: pointer;"></i>                                 
+                                
+                                </div>
 
                                 <!-- Price Display -->
                                 <p class="harga">Rp <?= number_format($row['harga'], 3, ',', '.') ?></p>
@@ -378,7 +381,7 @@ if ($id_user) {
                                 <!-- Menu Header (Name and Bookmark Icon) -->
                                 <div class="menu-header d-flex justify-content-between align-items-center mb-2">
                                     <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>,  '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>, 'dessert')"style="cursor: pointer;"></i>                                 
                                     </div>
 
                                 <!-- Price Display -->
@@ -447,7 +450,7 @@ if ($id_user) {
                                 <!-- Menu Header (Name and Bookmark Icon) -->
                                 <div class="menu-header d-flex justify-content-between align-items-center mb-2">
                                     <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>,  '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>, 'drink')"style="cursor: pointer;"></i>                                 
                                     </div>
 
                                 <!-- Price Display -->
@@ -516,7 +519,7 @@ if ($id_user) {
                                 <!-- Menu Header (Name and Bookmark Icon) -->
                                 <div class="menu-header d-flex justify-content-between align-items-center mb-2">
                                     <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>,  '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>, 'coffe')"style="cursor: pointer;"></i>                                 
                                     </div>
 
                                 <!-- Price Display -->
@@ -585,7 +588,7 @@ if ($id_user) {
                                 <!-- Menu Header (Name and Bookmark Icon) -->
                                 <div class="menu-header d-flex justify-content-between align-items-center mb-2">
                                     <h3 id="nama_masakan_<?= $row['id_masakan'] ?>" class="m-0"><?= htmlspecialchars($row['nama_masakan']) ?></h3>
-                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>, '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>)" style="cursor: pointer;"></i>
+                                    <i class="fas fa-bookmark" onclick="bookmarkMenu(<?= $row['id_masakan'] ?>,  '<?= htmlspecialchars($row['nama_masakan']) ?>', <?= $row['harga'] ?>, 'milks')"style="cursor: pointer;"></i>                                 
                                     </div>
 
                                 <!-- Price Display -->
@@ -690,9 +693,9 @@ if ($id_user) {
 
             <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
                 <h5 class="text-uppercase mb-4 font-weight-bold">Contact Us</h5>
-                <p><i class="fas fa-map-marker-alt me-2"></i> 123 Main Street, City, Country</p>
+                <p><i class="fas fa-map-marker-alt me-2"></i> Jl. Pantai Boulevard, Jakarta Utara</p>
                 <p><i class="fas fa-envelope me-2"></i> info@meifangresto.com</p>
-                <p><i class="fas fa-phone me-2"></i> +123 456 789</p>
+                <p><i class="fas fa-phone me-2"></i>  62+ 822-4707-9268</p>
             </div>
         </div>
 
@@ -700,7 +703,7 @@ if ($id_user) {
 
         <div class="row d-flex justify-content-center">
             <div class="col-md-7 col-lg-8">
-                <p class="text-center">&copy; 2024 Meifang Restaurant. All Rights Reserved.</p>
+                <p class="text-center">&copy; 2025 Meifang Restaurant. All Rights Reserved.</p>
             </div>
         </div>
     </div>
@@ -905,24 +908,32 @@ function addToCart(id, namaMasakan, harga, newQty, stock) {
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-function bookmarkMenu(id, nama, harga) {
-    let formData = new FormData();
-    formData.append("id_masakan", id);
-    formData.append("nama_masakan", nama);
-    formData.append("harga", harga.toFixed(3)); // Format harga 10,3
+function bookmarkMenu(id_masakan, nama_masakan, harga, category, user_id) {
+    let hargaFormatted = parseFloat(harga).toLocaleString("id-ID", { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+    });
 
-    fetch("bookmark.php", {
-        method: "POST",
-        body: formData
+    // Send data to the server using fetch()
+    fetch('bookmark.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            user_id: user_id,
+            id_masakan: id_masakan,
+            nama_masakan: nama_masakan,
+            harga: harga,
+            category: category
+        })
     })
     .then(response => response.text())
     .then(result => {
-        let hargaFormatted = parseFloat(harga).toLocaleString("id-ID", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
-
         if (result === "added") {
             Swal.fire({
                 title: "Success!",
-                text: nama + " (Rp " + hargaFormatted + ") add to bookmark.",
+                text: `${nama_masakan} (Rp ${hargaFormatted}) from the category ${category} has been added to the bookmark.`,
                 icon: "success",
                 timer: 2000,
                 showConfirmButton: false
@@ -930,7 +941,7 @@ function bookmarkMenu(id, nama, harga) {
         } else if (result === "removed") {
             Swal.fire({
                 title: "Deleted!",
-                text: nama + " (Rp " + hargaFormatted + ") delete from bookmark.",
+                text: `${nama_masakan} has been removed from the bookmark.`,
                 icon: "warning",
                 timer: 2000,
                 showConfirmButton: false
@@ -940,13 +951,15 @@ function bookmarkMenu(id, nama, harga) {
     .catch(error => {
         Swal.fire({
             title: "Error!",
-            text: "Terjadi kesalahan, coba lagi.",
+            text: "There was an error on the server.",
             icon: "error"
         });
         console.error("Error:", error);
     });
 }
 </script>
+
+
 
 
 <script>

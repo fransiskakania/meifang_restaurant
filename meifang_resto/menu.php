@@ -58,9 +58,9 @@
 
         <div class="collapse navbar-collapse" id="ftco-nav">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item "><a href="index.php" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="#menu" class="nav-link">Menu</a></li>
-                <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+                  <li class="nav-item "><a href="index.php" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="index#menu" class="nav-link">Menu</a></li>
+                <li class="nav-item"><a href="index#about" class="nav-link">About</a></li>
                 <li class="nav-item active"><a href="menu.php" class="nav-link">Favourite</a></li>
                 <li class="nav-item"><a href="reservation.html" class="nav-link">Cart</a></li>
             </ul>

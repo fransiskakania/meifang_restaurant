@@ -18,10 +18,11 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_order = $_POST['id_order'];
     $payment_with = $_POST['paymentMethods'];
-    $total_payment = floatval(str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['total_payment']));
+    
+    // Ambil total_payment dan pastikan format desimal
+    $total_payment = isset($_POST['total_payment']) ? (float) str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['total_payment']) : 0;
     $status_order = 'Pending'; // Status tetap "Pending" untuk semua metode pembayaran
 
-    
     // Ambil detail pesanan dari order_details
     $sql = "SELECT * FROM order_details WHERE id_order = ?";
     $stmt = $conn->prepare($sql);
@@ -39,10 +40,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = $row['name'];
             $no_meja = (int)$row['no_meja'];
             $type_order = $row['type_order'];
+            $subtotal=$row['subtotal'];
+            $tax=$row['tax'];
+
+            // $subtotal = isset($_POST['subtotal']) ? (float) str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['subtotal']) : 0;
+            // $tax = isset($_POST['tax']) ? (float) str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['tax']) : 0;
 
             // Simpan transaksi ke database
-            $insertStmt = $conn->prepare("INSERT INTO transaksi (id_order, date, nama_masakan, quantity, price, user_role, name, no_meja, type_order, payment_with, total_payment, status_order) VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $insertStmt->bind_param("isidssissds", $id_order, $nama_masakan, $quantity, $price, $user_role, $name, $no_meja, $type_order, $payment_with, $total_payment, $status_order);
+            $insertStmt = $conn->prepare("INSERT INTO transaksi (id_order, date, nama_masakan, quantity, price, user_role, name, no_meja, type_order, payment_with, total_payment, subtotal, tax, status_order) VALUES (?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insertStmt->bind_param("isidssissddds", $id_order, $nama_masakan, $quantity, $price, $user_role, $name, $no_meja, $type_order, $payment_with, $total_payment, $subtotal, $tax, $status_order);
             $insertStmt->execute();
             $insertStmt->close();
 
@@ -56,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $stmt_update->close();
-            
         }
     }
 
@@ -132,7 +137,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </script>";
 }
 
-} else {
+} 
+else {
     echo "<script>alert('Akses tidak diizinkan.'); window.location.href='order_menu.php';</script>";
 }
 ?>

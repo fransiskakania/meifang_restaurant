@@ -1091,9 +1091,9 @@ if ($result->num_rows > 0) {
             <div class="row">
                 <!-- Left-aligned section -->
                 <div class="col-6">
-                    <p class="mb-1"><strong>Date:</strong> <?php echo date("d-m-Y H:i:s", strtotime($order_date)); ?></p>
-                    <p class="mb-1"><strong>Order ID:</strong> <?php echo htmlspecialchars($id_order); ?></p>
-                    <p class="mb-1"><strong>Cashier:</strong> <?php echo ucfirst($user_role); ?></p>
+                <p class="mb-1"><strong>Date:</strong> <?php echo htmlspecialchars($order_date); ?></p>
+                <p class="mb-1"><strong>Order ID:</strong> <?php echo htmlspecialchars($id_order); ?></p>
+                <p class="mb-1"><strong>Cashier:</strong> <?php echo ucfirst($user_role); ?></p>
                 </div>
                 
                 <!-- Right-aligned section -->
@@ -1104,83 +1104,103 @@ if ($result->num_rows > 0) {
             </div>
         </div>
 
-
                 <hr>
-
                 <?php
-include 'koneksi.php';
+                  include 'koneksi.php';
 
-// Fetch the most recent order ID from the order_details table
-$sql = "SELECT id_order, price FROM order_details ORDER BY tanggal DESC LIMIT 1";
-$result = $conn->query($sql);
+                  $tax = 5; // Fixed tax amount of Rp 5.000
 
-// Check if we got a result
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $id_order = $row['id_order'];
-} else {
-    $id_order = 0; // Default if no orders are found
-}
+                  // Fetch the most recent order ID from the order_details table
+                  $sql = "SELECT id_order FROM order_details ORDER BY tanggal DESC LIMIT 1";
+                  $stmt = $conn->prepare($sql);
+                  $stmt->execute();
+                  $stmt->store_result();
 
-// Fetch order details for the current id_order
-$sql = "SELECT * FROM order_details WHERE id_order = '$id_order'";
-$result = $conn->query($sql);
+                  if ($stmt->num_rows > 0) {
+                      $stmt->bind_result($id_order);
+                      $stmt->fetch();
+                  } else {
+                      $id_order = 0; // Default if no orders are found
+                  }
 
-$subtotal = 0; // Initialize subtotal
-if ($result->num_rows > 0): 
-?>
-    <?php $itemNumber = 1; ?>
-    <?php while ($row = $result->fetch_assoc()): ?>
-        <?php 
-        $itemTotal = $row['quantity'] * $row['price']; 
-        $subtotal += $itemTotal;
-        ?>
-        <div class="order-item d-flex justify-content-between">
-            <div>
-                <span class="order-item-number"><?php echo $itemNumber; ?>.</span>
-                <div class="d-inline-block">
-                    <h6 class="mb-0"><?php echo htmlspecialchars($row['nama_masakan']); ?></h6>
-                    <small>Quantity: <?php echo htmlspecialchars($row['quantity']); ?> | Type Order: <?php echo htmlspecialchars($row['type_order']); ?></small>
-                </div>
-            </div>
-            <div class="text-end">
-                <span>Rp<?php echo number_format($itemTotal, 3, ',', '.'); ?></span>
-                <form method="POST" action="delete_item.php" class="d-inline-block" onsubmit="return confirmDelete()">
-                    <input type="hidden" name="id_detail" value="<?php echo $row['id_detail']; ?>">
-                    <input type="hidden" name="id_order" value="<?php echo $id_order; ?>">
-                    <button type="submit" class="btn btn-sm btn-light">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-        <?php $itemNumber++; ?>
-    <?php endwhile; ?>
-<?php else: ?>
-    <p>No items found in this order.</p>
-<?php endif; ?>
+                  // Fetch order details for the current id_order
+                  $sql = "SELECT * FROM order_details WHERE id_order = ?";
+                  $stmt = $conn->prepare($sql);
+                  $stmt->bind_param("i", $id_order);
+                  $stmt->execute();
+                  $result = $stmt->get_result();
 
+                  $subtotal = 0; // Initialize subtotal
+                  $total_payment = 0;
+                  ?>
 
-                <hr>
-                <!-- Total Payment Section -->
-                <div class="d-flex justify-content-between total">
-                    <span>Total Payment</span>
-                    <span id="total">Rp<?php echo number_format($subtotal, 3, ',', '.'); ?></span>
-                </div>
-                <hr>
-                
-                <!-- Payment Buttons -->
-                <div class="d-flex flex-wrap justify-content-between mt-2 gap-2">
-    <!-- Cancel Payment Button -->
-    <button class="btn btn-outline-danger flex-grow-1" onclick="cancelPayment()">Cancel Payment</button>
-    
-    <!-- Confirm Payment Button -->
-    <button class="btn btn-primary flex-grow-1" data-bs-toggle="modal" data-bs-target="#paymentModal">Confirm Payment</button>
-</div>
+                  <?php if ($result->num_rows > 0): ?>
+                      <?php $itemNumber = 1; ?>
+                      <?php while ($row = $result->fetch_assoc()): ?>
+                          <?php 
+                          $itemTotal = $row['quantity'] * $row['price']; 
+                          $subtotal += $itemTotal;
+                          ?>
+                          
+                          <div class="order-item d-flex justify-content-between">
+                              <div>
+                                  <span class="order-item-number"><?php echo $itemNumber; ?>.</span>
+                                  <div class="d-inline-block">
+                                      <h6 class="mb-0"><?php echo htmlspecialchars($row['nama_masakan']); ?></h6>
+                                      <small>Quantity: <?php echo htmlspecialchars($row['quantity']); ?> | Type Order: <?php echo htmlspecialchars($row['type_order']); ?></small>
+                                  </div>
+                              </div>
+                              <div class="text-end">
+                                  <span>Rp<?php echo number_format($itemTotal, 3, ',', '.'); ?></span>
+                                  
+                                  <form method="POST" action="delete_item.php" class="d-inline-block" onsubmit="return confirmDelete()">
+                                      <input type="hidden" name="id_detail" value="<?php echo $row['id_detail']; ?>">
+                                      <input type="hidden" name="id_order" value="<?php echo $id_order; ?>">
+                                      <button type="submit" class="btn btn-sm btn-light">
+                                          <i class="fas fa-trash-alt"></i>
+                                      </button>
+                                  </form>
+                              </div>
+                          </div>
 
+                          <?php $itemNumber++; ?>
+                      <?php endwhile; ?>
 
-              <!-- Modal form -->
-           
+                      <?php
+                      // Calculate total payment including tax
+                      $total_payment = $subtotal + $tax;
+                      
+                      ?>
+
+                      <hr>
+                      <div class="d-flex justify-content-between total">
+                          <span>Sub Total</span>
+                          <span id="subtotal">Rp<?php echo number_format($subtotal, 3, ',', '.'); ?></span>
+                      </div>
+                      <div class="d-flex justify-content-between total">
+                          <span>Tax</span>
+                          <span id="tax">Rp<?php echo number_format($tax, 3, ',', '.'); ?></span>
+                      </div>
+                      <div class="d-flex justify-content-between total"> 
+                          <span>Total Payment</span>
+                          <span id="total">Rp<?php echo number_format($$total_payment , 3, ',', '.'); ?></span>
+                      </div>
+
+                      <hr>
+                                  
+                      <!-- Payment Buttons -->
+                      <div class="d-flex flex-wrap justify-content-between mt-2 gap-2">
+                          <!-- Cancel Payment Button -->
+                          <button class="btn btn-outline-danger flex-grow-1" onclick="cancelPayment()">Cancel Payment</button>
+                          
+                          <!-- Confirm Payment Button -->
+                          <button class="btn btn-primary flex-grow-1" data-bs-toggle="modal" data-bs-target="#paymentModal">Confirm Payment</button>
+                      </div>
+                  <?php else: ?>
+                      <p>No items found in this order.</p>
+                  <?php endif; ?>
+                  <hr>
+         
             <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg">
               <div class="modal-content">
@@ -1188,6 +1208,7 @@ if ($result->num_rows > 0):
                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
+                  
                       <form method="POST" action="save_transaction.php" id="paymentForm">
                           <div class="container">
                           <input type="hidden" name="payment_with" id="paymentMethod">
@@ -1252,12 +1273,25 @@ if ($result->num_rows > 0):
                                   <input type="radio" id="paymentMethodsSeaBank" name="paymentMethods" value="SeaBank">
                               </label>
                           </div>  
-                
-                    <!-- Total Payment Input -->
-                    <div class="mb-4">
-                        <label for="modalTotalPayment" class="form-label">Total Payment (Rp)</label>
-                        <input type="text" class="form-control" id="TotalPayment" name="total_payment" value="Rp<?php echo number_format($subtotal, 3, ',', '.'); ?>" readonly>
-                    </div>
+
+                          <div class="mb-4">
+                              <label for="subtotal" class="form-label">Sub Total</label>
+                              <input type="text" class="form-control" id="subtotal" name="subtotal" 
+                                    value="Rp<?php echo number_format($subtotal , 3, ',', '.'); ?>" readonly>
+                          </div>
+                          <div class="mb-4">
+                              <label for="tax" class="form-label">Tax</label>
+                              <input type="text" class="form-control" id="tax" name="tax" 
+                                    value="Rp<?php echo number_format($tax , 3, ',', '.'); ?>" readonly>
+                          </div>
+                          
+                               <!-- Total Payment Input -->
+                                <div class="mb-4">
+                              <label for="TotalPayment" class="form-label">Total Payment (Rp)</label>
+                              <input type="text" class="form-control" id="TotalPayment" name="total" 
+                                    value="Rp<?php echo number_format($total_payment, 3, ',', '.'); ?>" readonly>
+                          </div>
+
                                             <!-- Cash Amount Input -->
                           <div id="cashFields" style="display: none;">
                               <label for="cashAmount" class="form-label">Cash Amount (Rp)</label>
@@ -1360,12 +1394,6 @@ if ($result->num_rows > 0):
     </script>
 
 <script> 
-  function deleteOrderItem(orderId) {
-    if (confirm("Are you sure you want to delete this order?")) {
-        // Redirect to delete_order.php with order ID as a GET parameter
-        window.location.href = "delete_order_item.php?id=" + orderId;
-    }
-}
 
 </script>
 
@@ -1587,7 +1615,23 @@ function cancelPayment() {
     });
 }
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+      let subtotalText = document.getElementById("subtotal").innerText.replace("Rp", "").replace(/\./g, "").replace(",", ".");
+      let taxText = document.getElementById("tax").innerText.replace("Rp", "").replace(/\./g, "").replace(",", ".");
 
+      let subtotal = parseFloat(subtotalText);
+      let tax = parseFloat(taxText);
+      let total = subtotal + tax;
+
+      // Format ulang angka ke format rupiah
+      function formatRupiah(angka) {
+          return "Rp" + angka.toLocaleString("id-ID", { minimumFractionDigits: 3 });
+      }
+
+      document.getElementById("total").innerText = formatRupiah(total);
+  });
+</script>
 
   </body>
 </html>

@@ -1360,6 +1360,7 @@ $id_level = $row['id_level'];
         document.getElementById('datetime').value = now.toLocaleString();
     });
 </script>
+
 <script>
 function updateOrderButtonVisibility() {
     const quantities = document.querySelectorAll('#quantity');
@@ -1384,13 +1385,13 @@ function updateOrderButtonVisibility() {
 function increaseQuantity(button) {
     const card = button.closest('.card');
     if (!card) {
-        console.error('Card tidak ditemukan.');
+        console.error('Card not found.');
         return;
     }
 
     const quantityElement = card.querySelector('#quantity');
     if (!quantityElement) {
-        console.error('Element quantity tidak ditemukan.');
+        console.error('Quantity element not found.');
         return;
     }
 
@@ -1401,14 +1402,21 @@ function increaseQuantity(button) {
         quantity += 1;
         quantityElement.textContent = quantity;
 
-        // Tambahkan green-border jika quantity > 0
+        // Add green-border if quantity > 0
         card.classList.add('green-border');
     } else {
-        alert('Stok tidak mencukupi!');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Insufficient Stock!',
+            text: 'The selected quantity exceeds available stock.',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        });
     }
 
     updateOrderButtonVisibility();
 }
+
 
 function decreaseQuantity(button) {
     const card = button.closest('.card');
@@ -1654,23 +1662,51 @@ function addMenuItem() {
     }
 </script>
 <script>
-    // Function to handle menu deletion
-    function deleteMenu(idMasakan) {
-        if (confirm('Are you sure you want to delete this menu?')) {
+function deleteMenu(idMasakan) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
             // AJAX request to delete menu
             fetch(`delete_menu.php?id_masakan=${idMasakan}`, { method: 'GET' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Menu deleted successfully!');
-                        location.reload(); // Reload page after deletion
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "The menu has been deleted.",
+                            icon: "success",
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload(); // Reload page after deletion
+                        });
                     } else {
-                        alert('Failed to delete menu!');
+                        Swal.fire({
+                            title: "Failed!",
+                            text: "Failed to delete the menu.",
+                            icon: "error"
+                        });
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error("Error:", error);
+                    Swal.fire({
+                        title: "Error!",
+                        text: "There was a problem processing your request.",
+                        icon: "error"
+                    });
+                });
         }
-    }
+    });
+}
+
 </script>
   </body>
 </html>

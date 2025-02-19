@@ -24,6 +24,29 @@ function showErrorAndExit($message, $redirectUrl) {
         </script>";
     exit();
 }
+function showSuccessAndRedirect($message, $redirectUrl) {
+    echo "
+        <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+        <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            .swal2-popup {
+                font-family: 'Poppins', sans-serif;
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'warning',  // Ganti 'success' menjadi 'warning'
+                    title: 'Warning!',
+                    text: '$message',
+                }).then(function() {
+                    window.location.href = '$redirectUrl';
+                });
+            });
+        </script>";
+    exit();
+}
+
 
 // Check connection
 if ($conn->connect_error) {
@@ -41,13 +64,13 @@ if ($result_latest_order && $result_latest_order->num_rows > 0) {
     $row = $result_latest_order->fetch_assoc();
     $id_order = $row['id_order'];
 } else {
-    showErrorAndExit("Error: No recent orders found. Please place an order first.", "index.php#menu");
+    showErrorAndExit("Error: No recent orders found. Please place an order first.", "../index.php");
 }
 $stmt_latest_order->close();
 
 // **Tambahan Validasi**: Jika tidak ada id_order, hentikan proses.
 if (empty($id_order)) {
-    showErrorAndExit("Invalid request! No order ID found.", "index.php#menu");
+    showErrorAndExit("Invalid request! No order ID found.", "../index.php");
 }
 
 // Fetch all order details for the latest id_order
@@ -71,11 +94,13 @@ if (empty($order_details)) {
     die("No order details found.");
 }
 
-$totalPayment = isset($_POST['total_payment']) ? $_POST['total_payment'] : (isset($_GET['totalPayment']) ? $_GET['totalPayment'] : 0);
-$totalPayment = (float) str_replace(['Rp', '.', ','], ['', '', '.'], $totalPayment);
-$cashAmount = isset($_POST['cash_amount']) ? $_POST['cash_amount'] : (isset($_GET['cash_amount']) ? $_GET['cash_amount'] : 0);
-$cashAmount = (float) str_replace(['Rp', '.', ','], ['', '', '.'], $cashAmount);
-
+ // Membersihkan dan mengonversi input ke float
+ $subtotal = isset($_POST['subtotal']) ? (float) str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['subtotal']) : 0;
+ $tax = isset($_POST['tax']) ? (float) str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['tax']) : 0;
+ $totalPayment = isset($_POST['total']) ? (float) str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['total']) : 0;
+ $cashAmount = isset($_POST['cash_amount']) ? (float) str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['cash_amount']) : 0;
+ $changeAmount = isset($_POST['change_amount']) ? (float) str_replace(['Rp', '.', ','], ['', '', '.'], $_POST['change_amount']) : 0;
+ $paymentMethod = isset($_POST['payment_with']) ? $_POST['payment_with'] : '';
 // Pastikan payment method dikirim
 $paymentMethod = isset($_POST['payment_with']) ? strtolower($_POST['payment_with']) : '';
 
@@ -99,8 +124,8 @@ if ($paymentMethod === 'cash') {
 
 
 // Prepare the SQL insert query
-$sql_insert = "INSERT INTO transaksi (user_role, date, no_meja, name, id_order, nama_masakan, quantity, price, type_order, status_order, payment_with, total_payment, cash_amount, change_amount) 
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+$sql_insert = "INSERT INTO transaksi (user_role, date, no_meja, name, id_order, nama_masakan, quantity, price, type_order, status_order, payment_with, subtotal, tax, total_payment, cash_amount, change_amount) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql_insert);
 
 // Retrieve additional inputs
@@ -117,7 +142,7 @@ if (strtolower($paymentMethod) === 'cash' && empty($cashAmount)) {
 // Bind and execute for each order detail
 foreach ($order_details as $detail) {
     $stmt->bind_param(
-        "ssssssidsssddd",
+        "ssssssidsssddddd",
         $detail['user_role'],
         $detail['tanggal'],
         $detail['no_meja'],
@@ -129,30 +154,13 @@ foreach ($order_details as $detail) {
         $detail['type_order'],
         $status_order,
         $paymentMethod,
-        $totalPayment,
+        $subtotal,      // Tambahkan subtotal
+        $tax,      // Tambahkan subtotal
+        $totalPayment,  // Total pembayaran
         $cashAmount,
         $changeAmount
     );
-
-    if (!$stmt->execute()) {
-        echo "Error inserting data: " . $stmt->error;
-        exit(); // Stop script on error
-    }
-
-    // Update stock if payment is successful
-    if ($status_order === "Success") {
-        $quantity = (int)$detail['quantity'];
-        $nama_masakan = $detail['nama_masakan'];
-
-        $sql_update_stock = "UPDATE masakan SET stock_menu = stock_menu - ? WHERE nama_masakan = ?";
-        $stmt_update = $conn->prepare($sql_update_stock);
-        $stmt_update->bind_param("is", $quantity, $nama_masakan);
-
-        if (!$stmt_update->execute()) {
-            echo "Error updating stock for " . $nama_masakan . ": " . $stmt_update->error . "\n";
-        }
-        $stmt_update->close();
-    }
+    $stmt->execute();
 }
 
 $sql_delete_order_details = "DELETE FROM order_details WHERE id_order = ?";
@@ -177,11 +185,14 @@ if ($stmt_delete->execute()) {
 
     $stmt_insert_deleted->bind_param("s", $detail['id_order']);
     if ($stmt_insert_deleted->execute()) {
-        echo "id_order successfully inserted into deleted_orders.";
+        // No echo output, but the operation was successful.
+        // Optionally, log a success message if needed.
     } else {
-        echo "Error inserting into deleted_orders: " . $stmt_insert_deleted->error;
+        // Log the error message to a file instead of displaying it
+        error_log("Error inserting into deleted_orders: " . $stmt_insert_deleted->error, 3, "/path/to/your/logfile.log");
         exit();
     }
+    
 
     $stmt_insert_deleted->close();
 } else {
@@ -192,12 +203,15 @@ if ($stmt_delete->execute()) {
 $stmt_delete->close();
 // Redirect after all orders are processed
 if ($status_order === "Pending") {
-    header("Location: noncash_payment.php?totalPayment=" . urlencode($totalPayment) . "&id_order=" . urlencode($detail['id_order']) . "&paymentMethod=" . urlencode($paymentMethod));
+    showSuccessAndRedirect("Payment is pending! please confirm payment before due date", "noncash_payment.php?totalPayment=" . urlencode($totalPayment) . "&id_order=" . urlencode($detail['id_order']) . "&paymentMethod=" . urlencode($paymentMethod));
     exit();
-} elseif ($status_order === "Success") {
+}
+elseif ($status_order === "Success") {
     // Pass data to cash_payment.php via session
     session_start();
     $_SESSION['order_details'] = $order_details;
+    $_SESSION['subtotal'] = $subtotal;
+    $_SESSION['tax'] = $tax;
     $_SESSION['total_payment'] = $totalPayment;
     $_SESSION['cash_amount'] = $cashAmount;
     $_SESSION['change_amount'] = $changeAmount;
