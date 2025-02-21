@@ -2,27 +2,99 @@
 session_start();
 include 'koneksi.php'; // Include your database connection file
 
-// Query untuk mengambil nama_lengkap berdasarkan id_user
-$id_user = $_SESSION['id_user'] ?? null; // Pastikan id_user berasal dari sesi atau sumber valid
-if ($id_user) {
-    $sql = "SELECT nama_lengkap,username FROM user WHERE id_user = '$id_user'";
-    $result = $conn->query($sql);
+// Ensure session id_user exists before accessing it
+if (!isset($_SESSION['id_user'])) {
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Access Denied!',
+                  text: 'You are not logged in. Please log in first.',
+              }).then(function() {
+                  window.location.href = '../login.php';
+              });
+          });
+      </script>";
+  exit(); // Stop script execution
+}
+function showErrorAndExit($message, $redirectUrl) {
+  echo "
+      <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
+      <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap' rel='stylesheet'>
+      <style>
+          .swal2-popup {
+              font-family: 'Poppins', sans-serif;
+          }
+      </style>
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: '$message',
+              }).then(function() {
+                  window.location.href = '/meifang_resto_admin/login.php';
+              });
+          });
+      </script>";
+  exit();
+}
 
-    if ($result && $result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $nama_lengkap = $row['nama_lengkap'];
-        $username = $row['username'];
 
-    } else {
-        $nama_lengkap = "Guest";
-        $username = "Not avalaible";
+// Periksa apakah sesi id_user tersedia
+if (!isset($_SESSION['id_user'])) {
+  header("Location: ./login.php");
+  exit();
+}
+// Ambil id_user dari session
+$id_user = $_SESSION['id_user'];
 
-    }
+// Query untuk mengambil nama_lengkap
+$sql = "SELECT nama_lengkap,username,tipe_user FROM user WHERE id_user = '$id_user'";
+$result = $conn->query($sql);
+
+if ($result && $result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $nama_lengkap = $row['nama_lengkap'];
+    $username = $row['username'];
+    $tipe_user = $row['tipe_user'];
+
 } else {
     $nama_lengkap = "Guest";
     $username = "Not avalaible";
+    $tipe_user = "tipe_user";
 
 }
+if ($tipe_user !== "Administrator") {
+  showErrorAndExit("Anda tidak memiliki akses sebagai admin!", "./login.php");
+}
+// Ambil id_user dari session
+$id_user = $_SESSION['id_user'];
+
+// Query untuk mengambil data pengguna berdasarkan id_user
+$sql = "SELECT id_user, username, nama_lengkap, id_level FROM user WHERE id_user = '$id_user'";
+$result = $conn->query($sql);
+
+// Jika query gagal atau tidak ada hasil, tampilkan error dan redirect
+if (!$result || $result->num_rows == 0) {
+  echo "<script>alert('Error: Id User tidak ditemukan!'); window.location.href='../login.php';</script>";
+  exit();
+}
+
+// Ambil data pengguna
+$row = $result->fetch_assoc();
+$nama_lengkap = $row['nama_lengkap'];
+$username = $row['username'];
+$id_level = $row['id_level'];
+
 // Step 1: Fetch the total payment
 $query_total_payment = "SELECT SUM(price * quantity) AS total_payment FROM orders";
 $result_total_payment = mysqli_query($conn, $query_total_payment);
@@ -86,7 +158,7 @@ if (isset($_GET['status'])) {
   <html lang="en">
     <head>
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-      <title>Tables - Kaiadmin Bootstrap 5 Admin Dashboard</title>
+      <title>Meifang Resto - Number Table</title>
       <meta
         content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
         name="viewport"
@@ -137,7 +209,100 @@ if (isset($_GET['status'])) {
       
     </head>
     <style>
-  
+   .btn-check:checked + .btn {
+    background-color: #0d6efd !important; /* Warna latar belakang sesuai tema primary */
+    color: white !important; /* Warna teks menjadi putih */
+    border-color: #0d6efd !important; /* Pastikan border mengikuti warna background */
+}
+
+.btn-check:checked + .btn i {
+    color: white !important; /* Warna ikon menjadi putih */
+}
+
+.btn-check + .btn {
+    color: #0d6efd; /* Warna teks default (belum dipilih) */
+}
+
+.btn-check + .btn i {
+    color: #0d6efd; /* Warna ikon default (belum dipilih) */
+}
+#tableContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px; /* Kurangi jarak antar card */
+}
+.table-card {
+  padding-top: 12px;
+margin-top: 12px;
+    width: 100px; /* Lebih kecil agar lebih banyak meja muat dalam satu baris */
+    max-width: 90px; /* Membatasi ukuran maksimum */
+    min-width: 60px; /* Membatasi ukuran minimum */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+    padding-left: 16px;
+    margin-left: 12px;
+    padding-top: 5px;
+}
+
+.card {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ccc; /* Warna border abu-abu */
+    border-radius: 5px; /* Sedikit lebih kecil agar lebih padat */
+    font-size: 12px; /* Font lebih kecil agar tetap terbaca */
+    font-weight: bold;
+    background-color: white;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover effect agar interaktif */
+.card:hover {
+    background-color: #f0f0f0;
+    border-color: #999;
+    cursor: pointer;
+}
+.card:hover {
+    border-color:rgb(181, 198, 223); /* Contoh: border muncul saat hover */
+}
+
+.available .card {
+        background-color: #0d6efd;
+        color: white;
+    }
+
+    .not-available .card {
+        background-color: gray;
+        color: white;
+    }
+    .table-container:hover .delete-icon {
+    display: inline; /* Munculkan ikon saat hover */
+}
+/* Sembunyikan ikon delete secara default */
+.delete-icon {
+    display: none;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Efek hover: Munculkan ikon delete */
+.table-container:hover .delete-icon {
+    display: inline;
+    opacity: 1;
+}
+
+/* Efek hover untuk kartu */
+.table-container:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Warna latar belakang sedikit lebih gelap */
+    transform: scale(1.05); /* Efek memperbesar sedikit */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Tambahkan bayangan */
+    color:black;
+}
+
+    </style>
  
   </style>
     <div>
@@ -185,12 +350,12 @@ if (isset($_GET['status'])) {
                     <p>User Login</p>
                   </a>
                 </li>
-                <li class="nav-item  ">
+                <!-- <li class="nav-item  ">
                 <a href="../tables/user_manager.php">
                   <i class="fas fa-users"></i>
                   <p>User Manager</p>
                 </a>
-              </li>
+              </li> -->
                 <li class="nav-section">
                   <span class="sidebar-mini-icon">
                     <i class="fa fa-ellipsis-h"></i>
@@ -210,7 +375,7 @@ if (isset($_GET['status'])) {
                   <p>Order Menu</p>
                 </a>
               </li>
-              <li class="nav-item active">
+              <li class="nav-item ">
                 <a href="../forms/detail_order.php">
                   <i class="fas fa-shopping-cart"></i>
                   <p>Details Order</p>
@@ -222,19 +387,20 @@ if (isset($_GET['status'])) {
                   <p>Transaction Order</p>
                 </a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item active">
                 <a href="../forms/table.php">
                   <i class="fas fa-calendar-check"></i>
                   <p>Number Table</p>
                 </a>
               </li>
-              <li class="nav-item">
+             
+              <li class="nav-item ">
                 <a href="../forms/transaction_history.php">
                   <i class="fas fa-history"></i>
                   <p> History Transaction </p>
                 </a>
               </li>
-            <li class="nav-item">
+            <li class="nav-item ">
             <a href="../forms/digital_payment.php">
               <i class="fas fa-money-check"></i>
               <p>Payment Method</p>
@@ -778,7 +944,7 @@ if (isset($_GET['status'])) {
                     >
                       <div class="avatar-sm">
                         <img
-                         src="../assets/img/profile/1.png"
+                         src="../assets/img/profile/jane.png"
                           alt="..."
                           class="avatar-img rounded-circle"
                         />
@@ -829,114 +995,195 @@ if (isset($_GET['status'])) {
             <!-- End Navbar -->
           </div>
           <div class="container mt-15">
-    <div class="card">
-        <div class="card-body">
-            <div id="cItemsContainer" class="d-flex justify-content-center align-items-center flex-wrap">
-                <div class="col-12 col-md-10 col-lg-10">
-                    <!-- Display order details in HTML table -->
-                    <div class="order-summary border rounded p-3 bg-light">
-                        <h4 class="text-center mb-4">Order Summary</h4>
-                        <div class="table-responsive">
-                            <table class="table table-bordered w-100">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Id Masakan</th>
-                                    <th>Nama Masakan</th>
-                                    <th>Stock Menu</th> <!-- Tambahkan kolom Stock Menu -->
-                                    <th>Jumlah</th>
-                                    <th>Harga</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orderTable">
-                                <?php
-                                $query = "SELECT * FROM orders";
-                                $result = mysqli_query($conn, $query);
-                                $no = 1;
-                                $total_payment = 0;
+  
 
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    $total_harga = $row['quantity'] * $row['price'];
-                                    $total_payment += $total_harga;
-                                ?>
-                                    <tr data-id="<?= $row['id_masakan'] ?>" data-price="<?= $row['price'] ?>">
-                                        <td><?= $no++ ?></td>
-                                        <td><?= $row['id_masakan'] ?></td>
-                                        <td><?= $row['nama_masakan'] ?></td>
-                                        <td><?= $row['stock_menu'] ?></td> <!-- Tambahkan data Stock Menu -->
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <button class="btn btn-sm btn-outline-secondary px-2 py-0 quantity-btn" onclick="updateQuantity(this, -1)">-</button>
-                                                <input type="text" class="form-control text-center mx-1 quantity-input" value="<?= $row['quantity'] ?>" readonly style="width: 50px;">
-                                                <button class="btn btn-sm btn-outline-secondary px-2 py-0 quantity-btn" onclick="updateQuantity(this, 1)">+</button>
-                                            </div>
-                                        </td>
-                                        <td class="item-total">Rp <?= number_format($total_harga, 3, ',', '.') ?></td>
-                                        <td>
-                                            <button class="btn btn-danger" onclick="deleteOrderItem(<?= $row['id_order'] ?>)">Delete</button>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
+          <div class="container mt-4">
+    <h2 class="text-left mb-4">Number Table</h2>
 
-                            </table>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span><strong>Total Payment:</strong></span>
-                            <span id="total">Rp <?= number_format($total_payment, 3, ',', '.') ?></span>
-                        </div>
-                        <div class="d-flex flex-column flex-md-row justify-content-between">
-                            <button class="btn btn-danger mb-2 mb-md-0 w-100 me-md-2" onclick="deleteOrder()">Delete Order</button>
-                            <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#confirmOrderModal">Confirm Order</button>
-                            </div>
-                      <!-- Modal Form untuk Confirm Order -->
-                    <div class="modal fade" id="confirmOrderModal" tabindex="-1" aria-labelledby="confirmOrderLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="confirmOrderLabel">Confirm Order</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form method="POST" action="confirm_order.php">
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label for="tanggal" class="form-label">Tanggal</label>
-                                            <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?php echo date('Y-m-d'); ?>" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="user_role" class="form-label">User Role</label>
-                                            <input type="text" class="form-control" id="user_role" name="user_role" value="<?php echo htmlspecialchars($nama_lengkap); ?>" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="name" class="form-label">Name</label>
-                                            <input type="text" class="form-control" id="name" name="name">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="no_meja" class="form-label">No Meja</label>
-                                            <input type="number" class="form-control" id="no_meja" name="no_meja" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="type_order" class="form-label">Type Order</label>
-                                            <select class="form-select" id="type_order" name="type_order">
-                                                <option value="Dine In">Dine In</option>
-                                                <option value="Dine Out">Dine Out</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="submit" class="btn btn-primary">Confirm</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <!-- Filter Buttons -->
+        <div class="menu-selection">
+            <ul class="nav nav-pills nav-info">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" onclick="filterSelection('all')">ALL</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="filterSelection('available')">AVAILABLE</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="filterSelection('not-available')">NOT AVAILABLE</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Search Bar & Status Button -->
+        <div class="d-flex">
+            <div class="input-group" style="max-width: 300px;">
+                <input type="text" id="searchTable" class="form-control" 
+                       placeholder="Search Table No..." oninput="searchTable()">
+                <span class="input-group-text">
+                    <i class="fa fa-search"></i>
+                </span>
+            </div>
+            <button class="btn btn-warning ms-2" onclick="checkTableStatus()">
+                <i class="fa fa-refresh"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+    <!-- Row dengan Display Flex -->
+    <?php
+require 'koneksi.php'; // Pastikan koneksi ke database sudah benar
+
+// Ambil daftar meja dari database
+$sql = "SELECT nomor_meja, status FROM meja ORDER BY nomor_meja ASC";
+$result = $conn->query($sql);
+
+$tables = [];
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $tables[] = $row; // Simpan semua data meja dalam array
+    }
+}
+
+// Fungsi untuk memeriksa apakah nomor meja sedang digunakan dalam transaksi
+function isTableInUse($nomor_meja, $conn) {
+    $sql = "SELECT COUNT(*) as count FROM transaksi WHERE no_meja = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $nomor_meja);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_assoc();
+    return $data['count'] > 0;
+}
+
+
+
+// Sekarang, array $tables memiliki status yang diperbarui
+?>
+
+
+<div class="d-flex">
+    <!-- Section Number Table -->
+    <div class="flex-grow-1">
+   <div class="row g-1" id="tableContainer"> <!-- Mengurangi jarak antar kolom -->
+    <?php
+        if (!empty($tables)) {
+            foreach ($tables as $table) {
+                $nomor_meja = $table['nomor_meja'];
+                $status = ($table['status'] == 'not-available') ? "not-available" : "available";
+
+                echo "<div class='col-md-1 col-sm-2 col-2 mb-0 table-card $status' data-table='$nomor_meja'>
+                <div class='card $status text-center p-0 position-relative table-container' 
+                     style='font-size: 12px; transition: 0.3s; cursor: pointer;' 
+                     onclick='processTable($nomor_meja)'>
+                     
+                    <span class='position-absolute top-0 end-0 p-1 text-danger delete-icon' 
+                          onclick='event.stopPropagation(); deleteTable($nomor_meja)'>
+                        &#10006;
+                    </span>
+                    
+                    $nomor_meja
+                </div>
+              </div>";
+        
+        
+            }
+        } else {
+            echo "<p class='text-muted'>Tidak ada meja tersedia.</p>";
+        }
+    ?>
+</div>
+</div>
+
+
+    <!-- Section Process No Meja (di sebelah kanan) -->
+    <div class="container-fluid px-3">
+    <div class="d-flex justify-content-end">
+        <div class="card p-4 ms-auto" style="max-width: 500px;">
+            <h5 class="mb-3">Tambah Meja</h5>
+            <div class="row g-2">
+                <div class="col-md-6 col-12">
+                    <label for="tableNumber" class="form-label">Nomor Meja</label>
+                    <input type="number" id="tableNumber" class="form-control" placeholder="Masukkan Nomor Meja">
+                </div>
+                <div class="col-md-6 col-12">
+                    <label for="tableStatus" class="form-label">Status</label>
+                    <select id="tableStatus" class="form-select">
+                        <option value="available">Available</option>
+                        <option value="not-available">Not Available</option>
+                    </select>
                 </div>
             </div>
+            <button class="btn btn-info w-100 mt-3" onclick="addTable()">Tambah Meja</button>
+
+            <!-- SECTION EDIT MEJA -->
+         
+    </div>
+    
+</div>
+<div class="d-flex justify-content-end">
+    <div class="card p-4 ms-auto" style="max-width: 500px;">
+        <hr class="my-4"> <!-- Garis pembatas -->
+        <h5 class="mb-3">Edit Nomor Meja</h5>
+        <div class="row g-2">
+            <div class="col-md-6 col-12">
+                <label for="editTableNumber" class="form-label">Nomor Meja</label>
+                <input type="number" id="editTableNumber" class="form-control" placeholder="Masukkan Nomor Meja">
+            </div>
+            <div class="col-md-6 col-12">
+                <label for="editTableStatus" class="form-label">Status</label>
+                <select id="editTableStatus" class="form-select">
+                    <option value="available">Available</option>
+                    <option value="not-available">Not Available</option>
+                </select>
+            </div>
         </div>
+        <button class="btn btn-info w-100 mt-3" onclick="editTable()">Edit Meja</button>
+    </div>
+</div>
+
+    
+</div>
+
+
+
+</div>
+</div>
+
+<script>
+function processTable(tableNumber) {
+    let processList = document.getElementById('processList');
+    processList.innerHTML = `<li class="list-group-item">Table ${tableNumber} selected</li>`;
+}
+</script>
+
+</div>
+
+<script>
+    function processTable(tableNumber) {
+        let processList = document.getElementById('processList');
+        let listItem = document.createElement('li');
+        listItem.classList.add('list-group-item');
+        listItem.textContent = 'Table ' + tableNumber + ' is being processed';
+
+        // Remove placeholder if any
+        let placeholder = processList.querySelector('.text-muted');
+        if (placeholder) {
+            processList.innerHTML = '';
+        }
+
+        processList.appendChild(listItem);
+    }
+</script>
+
+
+
+          </div>
     </div>
 </div>
 
@@ -1004,11 +1251,22 @@ if (isset($_GET['status'])) {
             }
         });
     </script>
-   <script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
 function deleteOrder() {
-    if (confirm("Are you sure you want to delete all orders? This action cannot be undone.")) {
-        window.location.href = "delete_orders.php";
-    }
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "delete_orders.php";
+        }
+    });
 }
 </script>
 <script>
@@ -1177,5 +1435,300 @@ document.querySelectorAll('.payment-option').forEach(function(option) {
 
 
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const dineIn = document.getElementById("dine_in");
+    const dineOut = document.getElementById("dine_out");
+    const noMejaContainer = document.getElementById("no_meja_container");
+
+    function toggleNoMeja() {
+        if (dineOut.checked) {
+            noMejaContainer.style.display = "none";
+        } else {
+            noMejaContainer.style.display = "block";
+        }
+    }
+
+    // Panggil fungsi saat halaman dimuat untuk memastikan kondisi awal
+    toggleNoMeja();
+
+    // Tambahkan event listener ke radio buttons
+    dineIn.addEventListener("change", toggleNoMeja);
+    dineOut.addEventListener("change", toggleNoMeja);
+});
+
+</script>
+<script>
+    // Fungsi Filter Kategori
+    function filterSelection(category) {
+        let tables = document.querySelectorAll('.table-card');
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        
+        event.target.classList.add('active');
+
+        tables.forEach(table => {
+            if (category === "all") {
+                table.style.display = "block";
+            } else if (table.classList.contains(category)) {
+                table.style.display = "block";
+            } else {
+                table.style.display = "none";
+            }
+        });
+    }
+
+    // Pencarian Nomor Meja
+    function searchTable() {
+        let input = document.getElementById("searchTable").value.toLowerCase();
+        let tables = document.querySelectorAll('.table-card');
+
+        tables.forEach(table => {
+            let tableNo = table.getAttribute('data-table');
+            if (tableNo.includes(input)) {
+                table.style.display = "block";
+            } else {
+                table.style.display = "none";
+            }
+        });
+    }
+</script>
+<script>
+function addTable() {
+    var tableNumber = document.getElementById("tableNumber").value;
+    var tableStatus = document.getElementById("tableStatus").value;
+
+    if (tableNumber === "") {
+        Swal.fire({
+            title: "Warning!",
+            text: "Nomor meja harus diisi!",
+            icon: "warning",
+            confirmButtonText: "OK"
+        });
+        return;
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "tambah_meja.php", true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+                var response = JSON.parse(xhr.responseText);
+                Swal.fire({
+                    title: response.success ? "Berhasil!" : "Gagal!",
+                    text: response.message,
+                    icon: response.success ? "success" : "error",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    if (response.success) {
+                        location.reload(); // Refresh halaman jika berhasil
+                    }
+                });
+            } catch (error) {
+                Swal.fire({
+                    title: "Eror!",
+                    text: "Respon server tidak valid!",
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            }
+        }
+    };
+
+    xhr.send("nomor_meja=" + encodeURIComponent(tableNumber) + "&status=" + encodeURIComponent(tableStatus));
+}
+
+
+
+</script>
+<script>
+function editTable() {
+    let nomorMeja = document.getElementById("editTableNumber").value;
+    let statusMeja = document.getElementById("editTableStatus").value;
+
+    if (nomorMeja === "" || statusMeja === "") {
+        Swal.fire({
+            title: "Warning!",
+            text: "Nomor Meja dan Status harus diisi!",
+            icon: "warning",
+            confirmButtonText: "OK"
+        });
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("nomor_meja", nomorMeja);
+    formData.append("status_meja", statusMeja);
+
+    console.log("Mengirim data:", nomorMeja, statusMeja); // Debugging
+
+    fetch("update_meja.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Respon server:", data); // Debugging
+        if (data.success) {
+            Swal.fire({
+                title: "Success!",
+                text: data.message,
+                icon: "success",
+                confirmButtonText: "OK"
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                title: "Error!",
+                text: "Gagal memperbarui meja: " + data.message,
+                icon: "error",
+                confirmButtonText: "OK"
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        Swal.fire({
+            title: "Terjadi Kesalahan!",
+            text: "Silakan coba lagi.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    });
+}
+
+</script>
+
+<script>
+function fillEditForm(id, nomor, status) {
+    document.getElementById("editTableId").value = id;  // ID Meja (hidden)
+    document.getElementById("editTableNumber").value = nomor;  // Nomor Meja
+    document.getElementById("editTableStatus").value = status; // Status
+}
+</script>
+
+<script>
+function deleteTable(nomorMeja) {
+    Swal.fire({
+        title: "Apakah Anda yakin?",
+        text: "Meja " + nomorMeja + " akan dihapus secara permanen!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Ya, hapus!",
+        cancelButtonText: "Batal"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('delete_meja.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'nomor_meja=' + nomorMeja
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: "Berhasil!",
+                        text: "Meja berhasil dihapus.",
+                        icon: "success",
+                        confirmButtonText: "OK"
+                    }).then(() => {
+                        location.reload(); // Refresh halaman setelah alert ditutup
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Gagal!",
+                        text: "Meja gagal dihapus.",
+                        icon: "error",
+                        confirmButtonText: "OK"
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    });
+}
+function checkTableStatus() {
+    fetch("status_meja.php", {
+        method: "POST",
+    })
+    .then(response => response.json())
+    .then(data => {
+        Swal.fire({
+            title: "Informasi",
+            text: data.message,
+            icon: "info",
+            confirmButtonText: "OK"
+        }).then(() => {
+            location.reload(); // Refresh halaman setelah SweetAlert ditutup
+        });
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        Swal.fire({
+            title: "Kesalahan",
+            text: "Terjadi kesalahan saat mengecek status meja!",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    });
+}
+
+
+function updateTableStatus() {
+    let nomorMeja = document.getElementById("editTableNumber").value;
+    let statusMeja = document.getElementById("editTableStatus").value;
+
+   
+    let formData = new FormData();
+    formData.append("nomor_meja", nomorMeja);
+    formData.append("status_meja", statusMeja);
+
+    console.log("Mengirim data:", nomorMeja, statusMeja); // Debugging
+
+    fetch("update_meja.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Respon server:", data); // Debugging
+        if (data.success) {
+            Swal.fire({
+                title: "Success!",
+                text: data.message,
+                icon: "success",
+                confirmButtonText: "OK"
+            }).then(() => {
+                location.reload(); // Refresh setelah update berhasil
+            });
+        } else {
+            Swal.fire({
+                title: "Info",
+                text: data.message, // Menampilkan pesan dari server
+                icon: "info",
+                confirmButtonText: "OK"
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        Swal.fire({
+            title: "Terjadi Kesalahan!",
+            text: "Silakan coba lagi.",
+            icon: "error",
+            confirmButtonText: "OK"
+        });
+    });
+}
+
+
+</script>
+
   </body>
 </html>

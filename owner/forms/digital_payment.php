@@ -239,10 +239,16 @@ $total_digital_payment = $row['total_digital_payment'] ? $row['total_digital_pay
                   <p>Details Order</p>
                 </a>
               </li>
-              <li class="nav-item">
+               <li class="nav-item">
                 <a href="../forms/transaction_order.php">
                   <i class="fas fa-money-check-alt"></i>
                   <p>Transaction Order</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="../forms/table.php">
+                  <i class="fas fa-calendar-check"></i>
+                  <p>Number Table</p>
                 </a>
               </li>
               <li class="nav-item  ">

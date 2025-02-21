@@ -226,7 +226,14 @@ if (isset($_GET['status'])) {
 .btn-check + .btn i {
     color: #0d6efd; /* Warna ikon default (belum dipilih) */
 }
-
+.info-icon {
+        font-size: 12px; /* Ukuran ikon */
+        padding-bottom: 10px;
+        color: #0d6efd; /* Warna ikon (Bootstrap info color) */
+        margin-left: 5px; /* Jarak ikon dengan teks */
+        display: flex;
+        align-items: center; /* Sejajarkan ikon dengan teks */
+    }
     </style>
  
   </style>
@@ -306,12 +313,19 @@ if (isset($_GET['status'])) {
                   <p>Details Order</p>
                 </a>
               </li>
-              <li class="nav-item">
+               <li class="nav-item">
                 <a href="../forms/transaction_order.php">
                   <i class="fas fa-money-check-alt"></i>
                   <p>Transaction Order</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="../forms/table.php">
+                  <i class="fas fa-calendar-check"></i>
+                  <p>Number Table</p>
+                </a>
+              </li>
+            
               <li class="nav-item">
                 <a href="../forms/transaction_history.php">
                   <i class="fas fa-history"></i>
@@ -979,7 +993,7 @@ if (isset($_GET['status'])) {
                             <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#confirmOrderModal">Confirm Order</button>
                             </div>
                       <!-- Modal Form untuk Confirm Order -->
-                    <div class="modal fade" id="confirmOrderModal" tabindex="-1" aria-labelledby="confirmOrderLabel" aria-hidden="true">
+                      <div class="modal fade" id="confirmOrderModal" tabindex="-1" aria-labelledby="confirmOrderLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -993,41 +1007,51 @@ if (isset($_GET['status'])) {
                                             <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?php echo date('Y-m-d'); ?>" readonly>
                                         </div>
                                         <div class="mb-3">
+    <label for="type_order" class="form-label fw-bold">Type Order</label>
+    <div class="d-flex gap-3">
+        <!-- Dine In -->
+        <input type="radio" class="btn-check" name="type_order" id="dine_in" value="Dine In" autocomplete="off" checked>
+        <label class="btn btn-outline-primary p-3 w-100" for="dine_in">
+            <i class="fas fa-utensils"></i> Dine In
+        </label>
+
+        <!-- Dine Out -->
+        <input type="radio" class="btn-check" name="type_order" id="dine_out" value="Dine Out" autocomplete="off">
+        <label class="btn btn-outline-primary p-3 w-100" for="dine_out">
+            <i class="fas fa-box"></i> Dine Out
+        </label>
+    </div>
+</div>
+
+<!-- Kontainer Nomor Meja -->
+<div class="mb-3 d-flex align-items-center" id="no_meja_container">
+    <label for="no_meja" class="form-label me-2">Available No Table</label>
+    <a href="table.php" class="info-icon">
+        <i class="fas fa-info"></i>
+    </a>
+</div>
+<select class="form-control" id="no_meja" name="no_meja" required>
+    <option value="" disabled selected>Select number table</option>
+    <?php
+    include 'koneksi.php'; // Pastikan koneksi database sudah ada
+
+    // Ambil nomor meja yang memiliki status 'available'
+    $query = "SELECT nomor_meja FROM meja WHERE status = 'available'";
+    $result = mysqli_query($conn, $query);
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<option value='{$row['nomor_meja']}'>{$row['nomor_meja']}</option>";
+    }
+    ?>
+</select>
+                                        <div class="mb-3">
                                             <label for="user_role" class="form-label">User Role</label>
                                             <input type="text" class="form-control" id="user_role" name="user_role" value="<?php echo htmlspecialchars($nama_lengkap); ?>" readonly>
                                         </div>
                                         <div class="mb-3">
                                             <label for="name" class="form-label">Name</label>
-                                            <input type="text" class="form-control" id="name" name="name">
+                                            <input type="text" class="form-control" id="name" name="name" placeholder="Input your name">
                                         </div>
-                                        <div class="mb-3">
-                                                  <label for="no_meja" class="form-label">No Meja</label>
-                                                  <select class="form-control" id="no_meja" name="no_meja" required>
-                                                      <option value="" disabled selected>Pilih No Meja</option>
-                                                      <?php 
-                                                      for ($i = 1; $i <= 10; $i++) {
-                                                          echo "<option value='$i'>$i</option>";
-                                                      }
-                                                      ?>
-                                                  </select>
-                                              </div>
-
-                                              <div class="mb-3">
-        <label for="type_order" class="form-label fw-bold">Type Order</label>
-        <div class="d-flex gap-3">
-            <!-- Dine In -->
-            <input type="radio" class="btn-check" name="type_order" id="dine_in" value="Dine In" autocomplete="off" checked>
-            <label class="btn btn-outline-primary p-3 w-100" for="dine_in">
-                <i class="fas fa-utensils"></i> Dine In
-            </label>
-
-            <!-- Dine Out -->
-            <input type="radio" class="btn-check" name="type_order" id="dine_out" value="Dine Out" autocomplete="off">
-            <label class="btn btn-outline-primary p-3 w-100" for="dine_out">
-                <i class="fas fa-box"></i> Dine Out
-            </label>
-        </div>
-    </div>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -1037,7 +1061,7 @@ if (isset($_GET['status'])) {
                             </div>
                         </div>
                     </div>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -1292,5 +1316,7 @@ document.querySelectorAll('.payment-option').forEach(function(option) {
 
 
 </script>
+
+
   </body>
 </html>

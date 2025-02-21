@@ -441,6 +441,12 @@ $id_level = $row['id_level'];
                 </a>
               </li>
               <li class="nav-item">
+                <a href="../forms/table.php">
+                  <i class="fas fa-calendar-check"></i>
+                  <p>Number Table</p>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a href="../forms/transaction_history.php">
                   <i class="fas fa-history"></i>
                   <p> History Transaction </p>
